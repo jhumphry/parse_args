@@ -18,8 +18,8 @@ package body Parse_Args is
       Default : in Boolean := False;
       Long_Option : in String := "")
    is
-      New_Arg : Argument_Ptr := new Concrete_Boolean_Option'(Value => Default,
-                                                        Default => Default);
+      New_Arg : Option_Ptr := new Concrete_Boolean_Option'(Value => Default,
+                                                               Set => False);
    begin
       A.Arguments.Insert(Name, New_Arg);
       if Short_Option /= '-' then
@@ -45,6 +45,7 @@ package body Parse_Args is
          begin
             if Arg'Length > 2 and then Arg(1..2) = "--" then
                if A.Long_Options.Contains(Arg(3..Arg'Last)) then
+                  A.Long_Options.Element(Arg(3..Arg'Last)).all.Set := True;
                   Concrete_Boolean_Option(A.Long_Options.Element(Arg(3..Arg'Last)).all).Value := True;
                end if;
             end if;
@@ -61,6 +62,19 @@ package body Parse_Args is
       return To_String(A.Command_Name);
    end Command_Name;
 
+   -------------------
+   -- Boolean_Value --
+   -------------------
+
+   function Boolean_Value(A : Argument_Parser; Name : String) return Boolean is
+   begin
+      if A.Arguments.Contains(Name) and then A.Arguments(Name).all in Boolean_Option'Class then
+         return Boolean_Option'Class(A.Arguments("test").all).Value;
+      else
+         raise Constraint_Error with "No suitable argument: " & Name & " with boolean result.";
+      end if;
+   end Boolean_Value;
+
    ------------------------
    -- Constant_Reference --
    ------------------------
@@ -68,20 +82,11 @@ package body Parse_Args is
    function Constant_Reference
      (C : aliased in Argument_Parser;
       Name : String)
-      return Argument_Ptr
+      return Option_Ptr
    is
    begin
       return C.Arguments(Name);
    end Constant_Reference;
-
-   ----------------
-   -- Is_Default --
-   ----------------
-
-   function Is_Default (A : Concrete_Boolean_Option) return Boolean is
-   begin
-      return A.Default;
-   end Is_Default;
 
    -----------
    -- Value --

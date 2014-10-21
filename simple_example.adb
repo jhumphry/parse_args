@@ -15,10 +15,6 @@ begin
    AP.Add_Boolean_Option("test");
    AP.Parse_Command_Line;
    Put_Line("Command name is: " & AP.Command_Name);
-   declare
-      test : Boolean_Argument'Class := Boolean_Argument'Class(AP("test").all);
-   begin
-      Put_Line("Value of option test is: " & Boolean'Image(test.Value));
-   end;
-
+   Put_Line("Value of option test is: " & Boolean'Image(AP.Boolean_Value("test")));
+   Put_Line("Option test was " & (if AP("test").Set then "" else "not ") & "set on the command line.");
 end Simple_Example;
