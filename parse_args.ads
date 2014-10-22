@@ -6,6 +6,7 @@
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
 
+with Ada.Containers;
 with Ada.Containers.Indefinite_Hashed_Maps, Ada.Strings.Hash;
 
 package Parse_Args is
@@ -59,6 +60,14 @@ private
                                                                     Hash => Ada.Strings.Hash,
                                                                     Equivalent_Keys => "=");
 
+   function Char_Hash(C : Character) return Ada.Containers.Hash_Type is
+     (Ada.Containers.Hash_Type(Character'Pos(C)));
+
+   package Option_Char_Maps is new Ada.Containers.Indefinite_Hashed_Maps(Key_Type => Character,
+                                                                    Element_Type => Option_Ptr,
+                                                                    Hash => Char_Hash,
+                                                                    Equivalent_Keys => "=");
+
    procedure Add_Option(A : in out Argument_Parser;
                         Name : in String;
                         Short_Option : in Character := '-';
@@ -78,7 +87,7 @@ private
       Command_Name : Unbounded_String;
       Arguments : Option_Maps.Map;
       Long_Options : Option_Maps.Map;
-      Short_Options : Option_Maps.Map;
+      Short_Options : Option_Char_Maps.Map;
       Message : Unbounded_String;
    end record;
 

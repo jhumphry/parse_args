@@ -13,17 +13,23 @@ package body Parse_Args is
 
    procedure Parse_Command_Line (A : in out Argument_Parser) is
 
-      -- Currently no support for grouped short options such as ls -au
       function is_short_option(A : String) return Boolean is
         (A'Length = 2 and then A(A'First) = '-' and then A(A'First+1) /= '-');
 
-      function short_option(A : String) return String is ("" & A(A'Last));
+      function short_option(A : String) return Character is (A(A'Last));
+
+      function is_short_option_group(A : String) return Boolean is
+        (A'Length > 2 and then
+         A(A'First) = '-' and then (for all I in A'First+1..A'Last => A(I) /= '-'));
+
+      function short_option_group(A : String) return String is (A(A'First+1..A'Last));
 
       function is_long_option(A : String) return Boolean is
         (A'Length > 2 and then A(A'First..A'First+1) = "--");
 
       function long_option(A : String) return String is
          (A(A'First+2..A'Last));
+
 
       function is_options_end(A : String) return Boolean is
          (A = "--");
@@ -55,6 +61,25 @@ package body Parse_Args is
                   elsif is_short_option(Arg)
                     and then A.Short_Options.Contains(short_option(Arg)) then
                      Set_Option(A.Short_Options.Element(short_option(Arg)).all, A);
+
+                  elsif is_short_option_group(Arg) then
+                     for C of short_option_group(Arg) loop
+                        if A.State /= Ready then
+                           A.Message := To_Unbounded_String("Option requiring an argument must be last in the group: " &
+                                                              short_option_group(Arg));
+                           A.State := Finish_Erroneous;
+                           exit;
+
+                        elsif A.Short_Options.Contains(C) then
+                           Set_Option(A.Short_Options.Element(C).all, A);
+
+                        else
+                           A.Message := To_Unbounded_String("Unrecognised argument: " & C);
+                           A.State := Finish_Erroneous;
+                           exit;
+
+                        end if;
+                     end loop;
 
                   else
                      A.Message := To_Unbounded_String("Unrecognised argument: " & Arg);
@@ -205,7 +230,7 @@ package body Parse_Args is
    begin
       A.Arguments.Insert(Name, O);
       if Short_Option /= '-' then
-         A.Short_Options.Insert("" & Short_Option, O);
+         A.Short_Options.Insert(Short_Option, O);
       end if;
       if Long_Option'Length > 0  then
          A.Long_Options.Insert(Long_Option, O);
