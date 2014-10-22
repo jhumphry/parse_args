@@ -14,6 +14,7 @@ procedure Simple_Example is
 begin
    AP.Add_Boolean_Option("foo",'f', False);
    AP.Add_Boolean_Option("bar",'b', True);
+   AP.Add_Repeated_Option("baz",'z', 0);
 
    AP.Parse_Command_Line;
 
@@ -23,6 +24,8 @@ begin
       Put_Line("Option foo was " & (if AP("foo").Set then "" else "not ") & "set on the command line.");
       Put_Line("Value of option bar is: " & Boolean'Image(AP.Boolean_Value("bar")));
       Put_Line("Option bar was " & (if AP("bar").Set then "" else "not ") & "set on the command line.");
+      Put_Line("Value of option baz is: " & Natural'Image(AP.Natural_Value("baz")));
+      Put_Line("Option baz was " & (if AP("baz").Set then "" else "not ") & "set on the command line.");
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
    end if;

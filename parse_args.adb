@@ -8,33 +8,6 @@ with Ada.Command_Line;
 package body Parse_Args is
 
    ------------------------
-   -- Add_Boolean_Option --
-   ------------------------
-
-   procedure Add_Boolean_Option
-     (A : in out Argument_Parser;
-      Name : in String;
-      Short_Option : in Character := '-';
-      Default : in Boolean := False;
-      Long_Option : in String := "")
-   is
-      New_Arg : Option_Ptr := new Concrete_Boolean_Option'(Set => False,
-                                                           Value => Default,
-                                                           Default => Default
-                                                          );
-   begin
-      A.Arguments.Insert(Name, New_Arg);
-      if Short_Option /= '-' then
-         A.Short_Options.Insert("" & Short_Option, New_Arg);
-      end if;
-      if Long_Option'Length > 0  then
-         A.Long_Options.Insert(Long_Option, New_Arg);
-      else
-         A.Long_Options.Insert(Name, New_Arg);
-      end if;
-   end Add_Boolean_Option;
-
-   ------------------------
    -- Parse_Command_Line --
    ------------------------
 
@@ -156,6 +129,57 @@ package body Parse_Args is
       end if;
    end Boolean_Value;
 
+   -------------------
+   -- Natural_Value --
+   -------------------
+
+   function Natural_Value(A : Argument_Parser; Name : String) return Natural is
+   begin
+      if A.Arguments.Contains(Name) and then A.Arguments(Name).all in Natural_Option'Class then
+         return Natural_Option'Class(A.Arguments(Name).all).Value;
+      else
+         raise Constraint_Error with "No suitable argument: " & Name & " with natural result.";
+      end if;
+   end Natural_Value;
+
+   ------------------------
+   -- Add_Boolean_Option --
+   ------------------------
+
+   procedure Add_Boolean_Option
+     (A : in out Argument_Parser;
+      Name : in String;
+      Short_Option : in Character := '-';
+      Default : in Boolean := False;
+      Long_Option : in String := "")
+   is
+      New_Opt : Option_Ptr := new Concrete_Boolean_Option'(Set => False,
+                                                           Value => Default,
+                                                           Default => Default
+                                                          );
+   begin
+      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
+   end Add_Boolean_Option;
+
+   ------------------------
+   -- Add_Repeated_Option --
+   ------------------------
+
+   procedure Add_Repeated_Option
+     (A : in out Argument_Parser;
+      Name : in String;
+      Short_Option : in Character := '-';
+      Default : in Natural := 0;
+      Long_Option : in String := "")
+   is
+      New_Opt : Option_Ptr := new Repeated_Option'(Set => False,
+                                                   Value => Default,
+                                                   Default => Default
+                                                  );
+   begin
+      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
+   end Add_Repeated_Option;
+
    ------------------------
    -- Constant_Reference --
    ------------------------
@@ -168,6 +192,27 @@ package body Parse_Args is
    begin
       return C.Arguments(Name);
    end Constant_Reference;
+
+   ----------------
+   -- Add_Option --
+   ----------------
+
+   procedure Add_Option(A : in out Argument_Parser;
+                        Name : in String;
+                        Short_Option : in Character := '-';
+                        Long_Option : in String := "";
+                        O : in Option_Ptr) is
+   begin
+      A.Arguments.Insert(Name, O);
+      if Short_Option /= '-' then
+         A.Short_Options.Insert("" & Short_Option, O);
+      end if;
+      if Long_Option'Length > 0  then
+         A.Long_Options.Insert(Long_Option, O);
+      else
+         A.Long_Options.Insert(Name, O);
+      end if;
+   end Add_Option;
 
    ----------------
    -- Set_Option --
@@ -186,6 +231,27 @@ package body Parse_Args is
    -----------
 
    function Value (A : Concrete_Boolean_Option) return Boolean is
+   begin
+      return A.Value;
+   end Value;
+
+   ----------------
+   -- Set_Option --
+   ----------------
+
+   procedure Set_Option(O : in out Repeated_Option;
+                        A : in out Argument_Parser'Class) is
+
+   begin
+      O.Set := True;
+      O.Value := O.Value + 1;
+   end Set_Option;
+
+   -----------
+   -- Value --
+   -----------
+
+   function Value (A : Repeated_Option) return Natural is
    begin
       return A.Value;
    end Value;
