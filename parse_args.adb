@@ -18,11 +18,9 @@ package body Parse_Args is
       Default : in Boolean := False;
       Long_Option : in String := "")
    is
-      New_Arg : Option_Ptr := new Concrete_Boolean_Option'(Min_Args => 0,
-                                                           Max_Args => 0,
-                                                           Set => False,
-                                                           Actual_Args => 0,
-                                                           Value => Default
+      New_Arg : Option_Ptr := new Concrete_Boolean_Option'(Set => False,
+                                                           Value => Default,
+                                                           Default => Default
                                                           );
    begin
       A.Arguments.Insert(Name, New_Arg);
@@ -68,7 +66,6 @@ package body Parse_Args is
       for I in 1..Ada.Command_Line.Argument_Count loop
          declare
             Arg : String := Ada.Command_Line.Argument(I);
-            Opt : access Option'Class;
          begin
             case A.State is
                when Init | Finish_Success =>
@@ -80,19 +77,11 @@ package body Parse_Args is
 
                   elsif is_long_option(Arg)
                     and then A.Long_Options.Contains(long_option(Arg)) then
-                        Opt := A.Long_Options.Element(long_option(Arg));
-                        Opt.Set := True;
-                        if Opt.all in Concrete_Boolean_Option'Class then
-                           Concrete_Boolean_Option(Opt.all).Value := True;
-                        end if;
+                     Set_Option(A.Long_Options.Element(long_option(Arg)).all, A);
 
                   elsif is_short_option(Arg)
                     and then A.Short_Options.Contains(short_option(Arg)) then
-                        Opt := A.Short_Options.Element(short_option(Arg));
-                        Opt.Set := True;
-                        if Opt.all in Concrete_Boolean_Option'Class then
-                           Concrete_Boolean_Option(Opt.all).Value := True;
-                        end if;
+                     Set_Option(A.Short_Options.Element(short_option(Arg)).all, A);
 
                   else
                      A.Message := To_Unbounded_String("Unrecognised argument: " & Arg);
@@ -112,7 +101,7 @@ package body Parse_Args is
       case A.State is
          when Init | Required_Argument | Finish_Success | Finish_Erroneous =>
             A.State := Finish_Erroneous;
-         when Ready | Possible_Argument | Positional_Only =>
+         when Ready | Positional_Only =>
             A.State := Finish_Success;
       end case;
 
@@ -179,6 +168,18 @@ package body Parse_Args is
    begin
       return C.Arguments(Name);
    end Constant_Reference;
+
+   ----------------
+   -- Set_Option --
+   ----------------
+
+   procedure Set_Option(O : in out Concrete_Boolean_Option;
+                        A : in out Argument_Parser'Class) is
+
+   begin
+      O.Set := True;
+      O.Value := not O.Default;
+   end Set_Option;
 
    -----------
    -- Value --

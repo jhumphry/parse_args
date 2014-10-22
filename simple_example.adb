@@ -12,14 +12,17 @@ use Ada.Text_IO;
 procedure Simple_Example is
    AP : Argument_Parser;
 begin
-   AP.Add_Boolean_Option("test",'t');
+   AP.Add_Boolean_Option("foo",'f', False);
+   AP.Add_Boolean_Option("bar",'b', True);
 
    AP.Parse_Command_Line;
 
    if AP.Parse_Success then
       Put_Line("Command name is: " & AP.Command_Name);
-      Put_Line("Value of option test is: " & Boolean'Image(AP.Boolean_Value("test")));
-      Put_Line("Option test was " & (if AP("test").Set then "" else "not ") & "set on the command line.");
+      Put_Line("Value of option foo is: " & Boolean'Image(AP.Boolean_Value("foo")));
+      Put_Line("Option foo was " & (if AP("foo").Set then "" else "not ") & "set on the command line.");
+      Put_Line("Value of option bar is: " & Boolean'Image(AP.Boolean_Value("bar")));
+      Put_Line("Option bar was " & (if AP("bar").Set then "" else "not ") & "set on the command line.");
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
    end if;

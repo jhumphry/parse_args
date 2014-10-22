@@ -25,18 +25,18 @@ package Parse_Args is
    function Command_Name(A : Argument_Parser) return String;
    function Boolean_Value(A : Argument_Parser; Name : String) return Boolean;
 
-   type Option(Min_Args : Natural; Max_Args : Natural) is abstract tagged limited record
+   type Option is abstract tagged limited record
       Set : Boolean := False;
-      Actual_Args : Natural := 0;
-      end record;
+   end record;
+
+   procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is abstract;
 
    type Option_Ptr is not null access Option'Class;
 
    function Constant_Reference(C : aliased in Argument_Parser;
                                Name : String) return Option_Ptr;
 
-
-   type Boolean_Option is abstract new Option(Min_Args => 0, Max_Args =>0) with null record;
+   type Boolean_Option is abstract new Option with null record;
    function Value(A : Boolean_Option) return Boolean is abstract;
 
 private
@@ -49,7 +49,6 @@ private
    type Argument_Parser_State is (Init,
                                   Ready,
                                   Required_Argument,
-                                  Possible_Argument,
                                   Positional_Only,
                                   Finish_Success,
                                   Finish_Erroneous);
@@ -65,8 +64,10 @@ private
    end record;
 
    type Concrete_Boolean_Option is new Boolean_Option with record
-      Value : Boolean;
+      Value : Boolean := False;
+      Default : Boolean := False;
    end record;
+   procedure Set_Option(O : in out Concrete_Boolean_Option; A : in out Argument_Parser'Class);
    function Value(A : Concrete_Boolean_Option) return Boolean;
 
 end Parse_Args;
