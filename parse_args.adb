@@ -13,6 +13,9 @@ package body Parse_Args is
 
    procedure Parse_Command_Line (A : in out Argument_Parser) is
 
+      -- Separating these out into expression functions keeps the mechanics
+      -- of the state machine below a little clean.
+
       function is_short_option(A : String) return Boolean is
         (A'Length = 2 and then A(A'First) = '-' and then A(A'First+1) /= '-');
 
@@ -30,7 +33,6 @@ package body Parse_Args is
       function long_option(A : String) return String is
          (A(A'First+2..A'Last));
 
-
       function is_options_end(A : String) return Boolean is
          (A = "--");
 
@@ -38,9 +40,12 @@ package body Parse_Args is
       if A.State /= Init then
          raise Program_Error with "Argument Parser has already been fed data!";
       end if;
-      A.State := Ready;
 
+      A.State := Ready;
       A.Command_Name := To_Unbounded_String(Ada.Command_Line.Command_Name);
+      A.Last_Option := null;
+      -- Last_Option holds a pointer to the option seen in the previous loop
+      -- iteration so we know where to direct any arguments.
 
       for I in 1..Ada.Command_Line.Argument_Count loop
          declare
@@ -57,14 +62,21 @@ package body Parse_Args is
                   elsif is_long_option(Arg)
                     and then A.Long_Options.Contains(long_option(Arg)) then
                      Set_Option(A.Long_Options.Element(long_option(Arg)).all, A);
+                     A.Last_Option := A.Long_Options.Element(long_option(Arg));
 
                   elsif is_short_option(Arg)
                     and then A.Short_Options.Contains(short_option(Arg)) then
                      Set_Option(A.Short_Options.Element(short_option(Arg)).all, A);
+                     A.Last_Option := A.Short_Options.Element(short_option(Arg));
 
                   elsif is_short_option_group(Arg) then
                      for C of short_option_group(Arg) loop
                         if A.State /= Ready then
+                           -- If one of the options specified previously in the
+                           -- option group takes an argument it will have left
+                           -- the parser state as Required_Argument. The only
+                           -- time this isn't a problem is if such an option is
+                           -- the last one in the group.
                            A.Message := To_Unbounded_String("Option requiring an argument must be last in the group: " &
                                                               short_option_group(Arg));
                            A.State := Finish_Erroneous;
@@ -72,6 +84,7 @@ package body Parse_Args is
 
                         elsif A.Short_Options.Contains(C) then
                            Set_Option(A.Short_Options.Element(C).all, A);
+                           A.Last_Option := A.Short_Options.Element(C);
 
                         else
                            A.Message := To_Unbounded_String("Unrecognised argument: " & C);
@@ -84,10 +97,20 @@ package body Parse_Args is
                   else
                      A.Message := To_Unbounded_String("Unrecognised argument: " & Arg);
                      A.State := Finish_Erroneous;
+
                   end if;
 
+               when Required_Argument =>
+                  -- The parser can never get into the Required_Argument state
+                  -- without going through the Ready state above, and all the
+                  -- branches set Last_Option to a valid, non-null option.
+                  Set_Option_Argument(A.Last_Option.all, Arg, A);
+
                when Finish_Erroneous =>
-                  null; -- When an problem is encountered, skip all subsequent arguments
+                  -- When an problem is encountered, skip all subsequent arguments
+                  -- Hopefully A.message has also been filled out with an informative
+                  -- message.
+                  null;
 
                when others =>
                   raise Program_Error with "Not implemented yet...";
@@ -206,6 +229,25 @@ package body Parse_Args is
    end Add_Repeated_Option;
 
    ------------------------
+   -- Add_Natural_Option --
+   ------------------------
+
+   procedure Add_Natural_Option
+     (A : in out Argument_Parser;
+      Name : in String;
+      Short_Option : in Character := '-';
+      Default : in Natural := 0;
+      Long_Option : in String := "")
+   is
+      New_Opt : Option_Ptr := new Concrete_Natural_Option'(Set => False,
+                                                           Value => Default,
+                                                           Default => Default
+                                                          );
+   begin
+      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
+   end Add_Natural_Option;
+
+   ------------------------
    -- Constant_Reference --
    ------------------------
 
@@ -277,6 +319,43 @@ package body Parse_Args is
    -----------
 
    function Value (A : Repeated_Option) return Natural is
+   begin
+      return A.Value;
+   end Value;
+
+   ----------------
+   -- Set_Option --
+   ----------------
+
+   procedure Set_Option(O : in out Concrete_Natural_Option;
+                        A : in out Argument_Parser'Class) is
+
+   begin
+      O.Set := True;
+      A.State := Required_Argument;
+   end Set_Option;
+
+   -------------------------
+   -- Set_Option_Argument --
+   -------------------------
+
+   procedure Set_Option_Argument(O : in out Concrete_Natural_Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class) is
+   begin
+      O.Value := Natural'Value(Arg);
+      A.State := Ready;
+   exception
+      when Constraint_Error =>
+         A.State := Finish_Erroneous;
+         A.Message := To_Unbounded_String("Not a valid natural number: " & Arg);
+   end Set_Option_Argument;
+
+   -----------
+   -- Value --
+   -----------
+
+   function Value (A : Concrete_Natural_Option) return Natural is
    begin
       return A.Value;
    end Value;

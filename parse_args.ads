@@ -33,11 +33,20 @@ package Parse_Args is
                                  Default : in Natural := 0;
                                  Long_Option : in String := "");
 
+   procedure Add_Natural_Option(A : in out Argument_Parser;
+                                Name : in String;
+                                Short_Option : in Character := '-';
+                                Default : in Natural := 0;
+                                Long_Option : in String := "");
+
    type Option is abstract tagged limited record
       Set : Boolean := False;
    end record;
 
    procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is abstract;
+   procedure Set_Option_Argument(O : in out Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class) is null;
 
    type Option_Ptr is not null access Option'Class;
 
@@ -83,15 +92,13 @@ private
 
    type Argument_Parser is tagged limited record
       State : Argument_Parser_State := Init;
-      Current_Option : access Option'Class;
+      Last_Option : access Option'Class;
       Command_Name : Unbounded_String;
       Arguments : Option_Maps.Map;
       Long_Options : Option_Maps.Map;
       Short_Options : Option_Char_Maps.Map;
       Message : Unbounded_String;
    end record;
-
-
 
    type Concrete_Boolean_Option is new Option and Boolean_Option with record
       Value : Boolean := False;
@@ -106,5 +113,16 @@ private
    end record;
    procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
    function Value(A : Repeated_Option) return Natural;
+
+   type Concrete_Natural_Option is new Option and Natural_Option with record
+      Value : Natural := 0;
+      Default : Natural := 0;
+   end record;
+   procedure Set_Option(O : in out Concrete_Natural_Option; A : in out Argument_Parser'Class);
+   procedure Set_Option_Argument(O : in out Concrete_Natural_Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class);
+   function Value(A : Concrete_Natural_Option) return Natural;
+
 
 end Parse_Args;
