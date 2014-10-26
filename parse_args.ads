@@ -42,8 +42,8 @@ package Parse_Args is
                        );
 
    function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
-   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
    function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr;
+   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
    function Make_String_Option(Default : in String := "") return Option_Ptr;
 
    function Constant_Reference(C : aliased in Argument_Parser;
@@ -102,12 +102,6 @@ private
    procedure Set_Option(O : in out Concrete_Boolean_Option; A : in out Argument_Parser'Class);
    function Value(A : in Concrete_Boolean_Option) return Boolean is (A.Value);
 
-   type Repeated_Option is new Option and Natural_Option with record
-      Value : Natural := 0;
-      Default : Natural := 0;
-   end record;
-   procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
-   function Value(A : in Repeated_Option) return Natural is (A.Value);
 
    type Concrete_Natural_Option is new Option_With_Argument and Natural_Option with record
       Value : Natural := 0;
@@ -117,6 +111,9 @@ private
                                  Arg : in String;
                                  A : in out Argument_Parser'Class);
    function Value(A : in Concrete_Natural_Option) return Natural is (A.Value);
+
+   type Repeated_Option is new Concrete_Natural_Option with null record;
+   procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
 
    type Concrete_String_Option is new Option_With_Argument and String_Option with record
       Value : Unbounded_String := Null_Unbounded_String;

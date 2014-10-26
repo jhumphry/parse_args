@@ -235,6 +235,15 @@ package body Parse_Args is
                                    Value => Default,
                                    Default => Default
                                   ));
+   -------------------------
+   -- Make_Natural_Option --
+   -------------------------
+
+   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
+     (new Concrete_Natural_Option'(Set => False,
+                                   Value => Default,
+                                   Default => Default
+                                  ));
 
    --------------------------
    -- Make_Repeated_Option --
@@ -245,16 +254,6 @@ package body Parse_Args is
                            Value => Default,
                            Default => Default
                           ));
-
-   -------------------------
-   -- Make_Natural_Option --
-   -------------------------
-
-   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
-     (new Concrete_Natural_Option'(Set => False,
-                                   Value => Default,
-                                   Default => Default
-                                  ));
 
    ------------------------
    -- Make_String_Option --
