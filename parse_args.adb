@@ -14,7 +14,7 @@ package body Parse_Args is
    procedure Parse_Command_Line (A : in out Argument_Parser) is
 
       -- Separating these out into expression functions keeps the mechanics
-      -- of the state machine below a little clean.
+      -- of the state machine below a little cleaner.
 
       function is_short_option(A : String) return Boolean is
         (A'Length = 2 and then A(A'First) = '-' and then A(A'First+1) /= '-');
@@ -23,7 +23,8 @@ package body Parse_Args is
 
       function is_short_option_group(A : String) return Boolean is
         (A'Length > 2 and then
-         A(A'First) = '-' and then (for all I in A'First+1..A'Last => A(I) /= '-'));
+         A(A'First) = '-' and then
+             (for all I in A'First+1..A'Last => A(I) /= '-'));
 
       function short_option_group(A : String) return String is (A(A'First+1..A'Last));
 
@@ -49,7 +50,7 @@ package body Parse_Args is
 
       for I in 1..Ada.Command_Line.Argument_Count loop
          declare
-            Arg : String := Ada.Command_Line.Argument(I);
+            Arg : constant String := Ada.Command_Line.Argument(I);
          begin
             case A.State is
                when Init | Finish_Success =>
@@ -286,7 +287,7 @@ package body Parse_Args is
 
    function Constant_Reference
      (C : aliased in Argument_Parser;
-      Name : String)
+      Name : in String)
       return Option_Ptr
    is
    begin

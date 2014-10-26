@@ -17,10 +17,10 @@ package Parse_Args is
    procedure Parse_Command_Line(A : in out Argument_Parser);
    function Parse_Success(A : in Argument_Parser) return Boolean;
    function Parse_Message(A : in Argument_Parser) return String;
-   function Command_Name(A : Argument_Parser) return String;
-   function Boolean_Value(A : Argument_Parser; Name : String) return Boolean;
-   function Natural_Value(A : Argument_Parser; Name : String) return Natural;
-   function String_Value(A : Argument_Parser; Name : String) return String;
+   function Command_Name(A : in Argument_Parser) return String;
+   function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
+   function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
+   function String_Value(A : in Argument_Parser; Name : in String) return String;
 
    procedure Add_Boolean_Option(A : in out Argument_Parser;
                                 Name : in String;
@@ -58,7 +58,7 @@ package Parse_Args is
    type Option_Ptr is not null access Option'Class;
 
    function Constant_Reference(C : aliased in Argument_Parser;
-                               Name : String) return Option_Ptr;
+                               Name : in String) return Option_Ptr;
 
    type Option_With_Argument is abstract new Option with null record;
    procedure Set_Option(O : in out Option_With_Argument; A : in out Argument_Parser'Class);
@@ -66,13 +66,13 @@ package Parse_Args is
    -- Define interfaces to specify different possible return values
 
    type Boolean_Option is limited interface;
-   function Value(A : Boolean_Option) return Boolean is abstract;
+   function Value(A : in Boolean_Option) return Boolean is abstract;
 
    type Natural_Option is limited interface;
-   function Value(A : Natural_Option) return Natural is abstract;
+   function Value(A : in Natural_Option) return Natural is abstract;
 
    type String_Option is limited interface;
-   function Value(A : String_Option) return String is abstract;
+   function Value(A : in String_Option) return String is abstract;
 
 private
 
@@ -81,7 +81,7 @@ private
                                                                     Hash => Ada.Strings.Hash,
                                                                     Equivalent_Keys => "=");
 
-   function Char_Hash(C : Character) return Ada.Containers.Hash_Type is
+   function Char_Hash(C : in Character) return Ada.Containers.Hash_Type is
      (Ada.Containers.Hash_Type(Character'Pos(C)));
 
    package Option_Char_Maps is new Ada.Containers.Indefinite_Hashed_Maps(Key_Type => Character,
@@ -117,14 +117,14 @@ private
       Default : Boolean := False;
    end record;
    procedure Set_Option(O : in out Concrete_Boolean_Option; A : in out Argument_Parser'Class);
-   function Value(A : Concrete_Boolean_Option) return Boolean is (A.Value);
+   function Value(A : in Concrete_Boolean_Option) return Boolean is (A.Value);
 
    type Repeated_Option is new Option and Natural_Option with record
       Value : Natural := 0;
       Default : Natural := 0;
    end record;
    procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
-   function Value(A : Repeated_Option) return Natural is (A.Value);
+   function Value(A : in Repeated_Option) return Natural is (A.Value);
 
    type Concrete_Natural_Option is new Option_With_Argument and Natural_Option with record
       Value : Natural := 0;
@@ -133,7 +133,7 @@ private
    procedure Set_Option_Argument(O : in out Concrete_Natural_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class);
-   function Value(A : Concrete_Natural_Option) return Natural is (A.Value);
+   function Value(A : in Concrete_Natural_Option) return Natural is (A.Value);
 
    type Concrete_String_Option is new Option_With_Argument and String_Option with record
       Value : Unbounded_String := Null_Unbounded_String;
@@ -142,6 +142,6 @@ private
    procedure Set_Option_Argument(O : in out Concrete_String_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class);
-   function Value(A : Concrete_String_Option) return String is (To_String(A.Value));
+   function Value(A : in Concrete_String_Option) return String is (To_String(A.Value));
 
 end Parse_Args;
