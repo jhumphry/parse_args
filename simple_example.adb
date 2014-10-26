@@ -16,6 +16,7 @@ begin
    AP.Add_Boolean_Option("bar",'b', True);
    AP.Add_Repeated_Option("baz",'z', 0);
    AP.Add_Natural_Option("natural", 'n', 0);
+   AP.Add_String_Option("string", 's', "");
 
    AP.Parse_Command_Line;
 
@@ -29,6 +30,8 @@ begin
       Put_Line("Option baz was " & (if AP("baz").Set then "" else "not ") & "set on the command line.");
       Put_Line("Value of option natural is: " & Natural'Image(AP.Natural_Value("natural")));
       Put_Line("Option natural was " & (if AP("natural").Set then "" else "not ") & "set on the command line.");
+      Put_Line("Value of option string is: " & AP.String_Value("string"));
+      Put_Line("Option string was " & (if AP("string").Set then "" else "not ") & "set on the command line.");
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
    end if;

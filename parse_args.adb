@@ -190,6 +190,19 @@ package body Parse_Args is
       end if;
    end Natural_Value;
 
+   -------------------
+   -- String_Value --
+   -------------------
+
+   function String_Value(A : Argument_Parser; Name : String) return String is
+   begin
+      if A.Arguments.Contains(Name) and then A.Arguments(Name).all in String_Option'Class then
+         return String_Option'Class(A.Arguments(Name).all).Value;
+      else
+         raise Constraint_Error with "No suitable argument: " & Name & " with string result.";
+      end if;
+   end String_Value;
+
    ------------------------
    -- Add_Boolean_Option --
    ------------------------
@@ -247,6 +260,26 @@ package body Parse_Args is
       Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
    end Add_Natural_Option;
 
+   -----------------------
+   -- Add_String_Option --
+   -----------------------
+
+   procedure Add_String_Option
+     (A : in out Argument_Parser;
+      Name : in String;
+      Short_Option : in Character := '-';
+      Default : in String := "";
+      Long_Option : in String := "")
+   is
+      Default_US : Unbounded_String := To_Unbounded_String(Default);
+      New_Opt : Option_Ptr := new Concrete_String_Option'(Set => False,
+                                                           Value => Default_US,
+                                                           Default => Default_US
+                                                          );
+   begin
+      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
+   end Add_String_Option;
+
    ------------------------
    -- Constant_Reference --
    ------------------------
@@ -259,6 +292,23 @@ package body Parse_Args is
    begin
       return C.Arguments(Name);
    end Constant_Reference;
+
+   ----------------
+   -- Set_Option --
+   ----------------
+
+   procedure Set_Option(O : in out Option_With_Argument;
+                        A : in out Argument_Parser'Class) is
+
+   begin
+      if O.Set then
+         A.State := Finish_Erroneous;
+         A.Message := To_Unbounded_String("Argument cannot be specified twice.");
+      else
+         O.Set := True;
+         A.State := Required_Argument;
+      end if;
+   end Set_Option;
 
    ----------------
    -- Add_Option --
@@ -293,15 +343,6 @@ package body Parse_Args is
       O.Value := not O.Default;
    end Set_Option;
 
-   -----------
-   -- Value --
-   -----------
-
-   function Value (A : Concrete_Boolean_Option) return Boolean is
-   begin
-      return A.Value;
-   end Value;
-
    ----------------
    -- Set_Option --
    ----------------
@@ -312,27 +353,6 @@ package body Parse_Args is
    begin
       O.Set := True;
       O.Value := O.Value + 1;
-   end Set_Option;
-
-   -----------
-   -- Value --
-   -----------
-
-   function Value (A : Repeated_Option) return Natural is
-   begin
-      return A.Value;
-   end Value;
-
-   ----------------
-   -- Set_Option --
-   ----------------
-
-   procedure Set_Option(O : in out Concrete_Natural_Option;
-                        A : in out Argument_Parser'Class) is
-
-   begin
-      O.Set := True;
-      A.State := Required_Argument;
    end Set_Option;
 
    -------------------------
@@ -351,13 +371,16 @@ package body Parse_Args is
          A.Message := To_Unbounded_String("Not a valid natural number: " & Arg);
    end Set_Option_Argument;
 
-   -----------
-   -- Value --
-   -----------
+   -------------------------
+   -- Set_Option_Argument --
+   -------------------------
 
-   function Value (A : Concrete_Natural_Option) return Natural is
+   procedure Set_Option_Argument(O : in out Concrete_String_Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class) is
    begin
-      return A.Value;
-   end Value;
+      O.Value := To_Unbounded_String(Arg);
+      A.State := Ready;
+   end Set_Option_Argument;
 
 end Parse_Args;
