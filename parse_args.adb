@@ -204,82 +204,71 @@ package body Parse_Args is
       end if;
    end String_Value;
 
-   ------------------------
-   -- Add_Boolean_Option --
-   ------------------------
+   ----------------
+   -- Add_Option --
+   ----------------
 
-   procedure Add_Boolean_Option
-     (A : in out Argument_Parser;
-      Name : in String;
-      Short_Option : in Character := '-';
-      Default : in Boolean := False;
-      Long_Option : in String := "")
-   is
-      New_Opt : Option_Ptr := new Concrete_Boolean_Option'(Set => False,
-                                                           Value => Default,
-                                                           Default => Default
-                                                          );
+   procedure Add_Option(A : in out Argument_Parser;
+                        O : in Option_Ptr;
+                        Name : in String;
+                        Short_Option : in Character := '-';
+                        Long_Option : in String := ""
+                        ) is
    begin
-      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
-   end Add_Boolean_Option;
+      A.Arguments.Insert(Name, O);
+      if Short_Option /= '-' then
+         A.Short_Options.Insert(Short_Option, O);
+      end if;
+      if Long_Option'Length > 0  then
+         A.Long_Options.Insert(Long_Option, O);
+      else
+         A.Long_Options.Insert(Name, O);
+      end if;
+   end Add_Option;
+
+   -------------------------
+   -- Make_Boolean_Option --
+   -------------------------
+
+   function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr is
+     (new Concrete_Boolean_Option'(Set => False,
+                                   Value => Default,
+                                   Default => Default
+                                  ));
+
+   --------------------------
+   -- Make_Repeated_Option --
+   --------------------------
+
+   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr is
+     (new Repeated_Option'(Set => False,
+                           Value => Default,
+                           Default => Default
+                          ));
+
+   -------------------------
+   -- Make_Natural_Option --
+   -------------------------
+
+   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
+     (new Concrete_Natural_Option'(Set => False,
+                                   Value => Default,
+                                   Default => Default
+                                  ));
 
    ------------------------
-   -- Add_Repeated_Option --
+   -- Make_String_Option --
    ------------------------
 
-   procedure Add_Repeated_Option
-     (A : in out Argument_Parser;
-      Name : in String;
-      Short_Option : in Character := '-';
-      Default : in Natural := 0;
-      Long_Option : in String := "")
-   is
-      New_Opt : Option_Ptr := new Repeated_Option'(Set => False,
-                                                   Value => Default,
-                                                   Default => Default
-                                                  );
-   begin
-      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
-   end Add_Repeated_Option;
-
-   ------------------------
-   -- Add_Natural_Option --
-   ------------------------
-
-   procedure Add_Natural_Option
-     (A : in out Argument_Parser;
-      Name : in String;
-      Short_Option : in Character := '-';
-      Default : in Natural := 0;
-      Long_Option : in String := "")
-   is
-      New_Opt : Option_Ptr := new Concrete_Natural_Option'(Set => False,
-                                                           Value => Default,
-                                                           Default => Default
-                                                          );
-   begin
-      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
-   end Add_Natural_Option;
-
-   -----------------------
-   -- Add_String_Option --
-   -----------------------
-
-   procedure Add_String_Option
-     (A : in out Argument_Parser;
-      Name : in String;
-      Short_Option : in Character := '-';
-      Default : in String := "";
-      Long_Option : in String := "")
+   function Make_String_Option(Default : in String := "") return Option_Ptr
    is
       Default_US : Unbounded_String := To_Unbounded_String(Default);
-      New_Opt : Option_Ptr := new Concrete_String_Option'(Set => False,
-                                                           Value => Default_US,
-                                                           Default => Default_US
-                                                          );
    begin
-      Add_Option(A, Name, Short_Option, Long_Option, New_Opt);
-   end Add_String_Option;
+      return new Concrete_String_Option'(Set => False,
+                                         Value => Default_US,
+                                         Default => Default_US
+                                        );
+   end Make_String_Option;
 
    ------------------------
    -- Constant_Reference --
@@ -310,27 +299,6 @@ package body Parse_Args is
          A.State := Required_Argument;
       end if;
    end Set_Option;
-
-   ----------------
-   -- Add_Option --
-   ----------------
-
-   procedure Add_Option(A : in out Argument_Parser;
-                        Name : in String;
-                        Short_Option : in Character := '-';
-                        Long_Option : in String := "";
-                        O : in Option_Ptr) is
-   begin
-      A.Arguments.Insert(Name, O);
-      if Short_Option /= '-' then
-         A.Short_Options.Insert(Short_Option, O);
-      end if;
-      if Long_Option'Length > 0  then
-         A.Long_Options.Insert(Long_Option, O);
-      else
-         A.Long_Options.Insert(Name, O);
-      end if;
-   end Add_Option;
 
    ----------------
    -- Set_Option --

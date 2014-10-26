@@ -18,33 +18,10 @@ package Parse_Args is
    function Parse_Success(A : in Argument_Parser) return Boolean;
    function Parse_Message(A : in Argument_Parser) return String;
    function Command_Name(A : in Argument_Parser) return String;
+
    function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
    function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
    function String_Value(A : in Argument_Parser; Name : in String) return String;
-
-   procedure Add_Boolean_Option(A : in out Argument_Parser;
-                                Name : in String;
-                                Short_Option : in Character := '-';
-                                Default : in Boolean := False;
-                                Long_Option : in String := "");
-
-   procedure Add_Repeated_Option(A : in out Argument_Parser;
-                                 Name : in String;
-                                 Short_Option : in Character := '-';
-                                 Default : in Natural := 0;
-                                 Long_Option : in String := "");
-
-   procedure Add_Natural_Option(A : in out Argument_Parser;
-                                Name : in String;
-                                Short_Option : in Character := '-';
-                                Default : in Natural := 0;
-                                Long_Option : in String := "");
-
-   procedure Add_String_Option(A : in out Argument_Parser;
-                                Name : in String;
-                                Short_Option : in Character := '-';
-                                Default : in String := "";
-                                Long_Option : in String := "");
 
    type Option is abstract tagged limited record
       Set : Boolean := False;
@@ -56,6 +33,18 @@ package Parse_Args is
                                  A : in out Argument_Parser'Class) is null;
 
    type Option_Ptr is not null access Option'Class;
+
+   procedure Add_Option(A : in out Argument_Parser;
+                        O : in Option_Ptr;
+                        Name : in String;
+                        Short_Option : in Character := '-';
+                        Long_Option : in String := ""
+                       );
+
+   function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
+   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
+   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr;
+   function Make_String_Option(Default : in String := "") return Option_Ptr;
 
    function Constant_Reference(C : aliased in Argument_Parser;
                                Name : in String) return Option_Ptr;
@@ -88,12 +77,6 @@ private
                                                                     Element_Type => Option_Ptr,
                                                                     Hash => Char_Hash,
                                                                     Equivalent_Keys => "=");
-
-   procedure Add_Option(A : in out Argument_Parser;
-                        Name : in String;
-                        Short_Option : in Character := '-';
-                        Long_Option : in String := "";
-                        O : in Option_Ptr);
 
    type Argument_Parser_State is (Init,
                                   Ready,

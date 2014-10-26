@@ -12,11 +12,11 @@ use Ada.Text_IO;
 procedure Simple_Example is
    AP : Argument_Parser;
 begin
-   AP.Add_Boolean_Option("foo",'f', False);
-   AP.Add_Boolean_Option("bar",'b', True);
-   AP.Add_Repeated_Option("baz",'z', 0);
-   AP.Add_Natural_Option("natural", 'n', 0);
-   AP.Add_String_Option("string", 's', "");
+   AP.Add_Option(Make_Boolean_Option(False), "foo", 'f');
+   AP.Add_Option(Make_Boolean_Option(True), "bar", 'b');
+   AP.Add_Option(Make_Repeated_Option(0), "baz", 'z');
+   AP.Add_Option(Make_Natural_Option(0), "natural", 'n');
+   AP.Add_Option(Make_String_Option(""), "string", 's');
 
    AP.Parse_Command_Line;
 
