@@ -44,6 +44,7 @@ package body Parse_Args is
 
       A.State := Ready;
       A.Command_Name := To_Unbounded_String(Ada.Command_Line.Command_Name);
+      A.Current_Positional := A.Positional.First;
       A.Last_Option := null;
       -- Last_Option holds a pointer to the option seen in the previous loop
       -- iteration so we know where to direct any arguments.
@@ -95,6 +96,10 @@ package body Parse_Args is
                         end if;
                      end loop;
 
+                  elsif A.Current_Positional /= Positional_Lists.No_Element then
+                     Set_Option_Argument(Positional_Lists.Element(A.Current_Positional).all, Arg, A);
+                     Positional_Lists.Next(A.Current_Positional);
+
                   else
                      A.Message := To_Unbounded_String("Unrecognised argument: " & Arg);
                      A.State := Finish_Erroneous;
@@ -106,15 +111,28 @@ package body Parse_Args is
                   -- without going through the Ready state above, and all the
                   -- branches set Last_Option to a valid, non-null option.
                   Set_Option_Argument(A.Last_Option.all, Arg, A);
+                  -- The state could be set to Finish_Erroneous
+                  -- OTherwise it should go back to Ready
+                  if A.State = Required_Argument then
+                     A.State := Ready;
+                  end if;
+
+               when Positional_Only =>
+                  if A.Current_Positional /= Positional_Lists.No_Element then
+                     Set_Option_Argument(Positional_Lists.Element(A.Current_Positional).all, Arg, A);
+                     Positional_Lists.Next(A.Current_Positional);
+
+                  else
+                     A.Message := To_Unbounded_String("Unrecognised argument: " & Arg);
+                     A.State := Finish_Erroneous;
+
+                  end if;
 
                when Finish_Erroneous =>
                   -- When an problem is encountered, skip all subsequent arguments
                   -- Hopefully A.message has also been filled out with an informative
                   -- message.
                   null;
-
-               when others =>
-                  raise Program_Error with "Not implemented yet...";
 
             end case;
          end;
@@ -226,6 +244,19 @@ package body Parse_Args is
       end if;
    end Add_Option;
 
+   -----------------------
+   -- Append_Positional --
+   -----------------------
+
+   procedure Append_Positional(A : in out Argument_Parser;
+                            O : in Option_Ptr;
+                            Name : in String
+                           ) is
+   begin
+      A.Arguments.Insert(Name, O);
+      A.Positional.Append(O);
+   end Append_Positional;
+
    -------------------------
    -- Make_Boolean_Option --
    -------------------------
@@ -294,7 +325,6 @@ package body Parse_Args is
          A.State := Finish_Erroneous;
          A.Message := To_Unbounded_String("Argument cannot be specified twice.");
       else
-         O.Set := True;
          A.State := Required_Argument;
       end if;
    end Set_Option;
@@ -331,8 +361,8 @@ package body Parse_Args is
                                  Arg : in String;
                                  A : in out Argument_Parser'Class) is
    begin
+      O.Set := True;
       O.Value := Natural'Value(Arg);
-      A.State := Ready;
    exception
       when Constraint_Error =>
          A.State := Finish_Erroneous;
@@ -347,8 +377,8 @@ package body Parse_Args is
                                  Arg : in String;
                                  A : in out Argument_Parser'Class) is
    begin
+      O.Set := True;
       O.Value := To_Unbounded_String(Arg);
-      A.State := Ready;
    end Set_Option_Argument;
 
 end Parse_Args;

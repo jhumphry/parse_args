@@ -17,6 +17,8 @@ begin
    AP.Add_Option(Make_Repeated_Option(0), "baz", 'z');
    AP.Add_Option(Make_Natural_Option(0), "natural", 'n');
    AP.Add_Option(Make_String_Option(""), "string", 's');
+   AP.Append_Positional(Make_String_Option("INFILE"), "infile");
+   AP.Append_Positional(Make_Natural_Option(4), "count");
 
    AP.Parse_Command_Line;
 
@@ -32,6 +34,10 @@ begin
       Put_Line("Option natural was " & (if AP("natural").Set then "" else "not ") & "set on the command line.");
       Put_Line("Value of option string is: " & AP.String_Value("string"));
       Put_Line("Option string was " & (if AP("string").Set then "" else "not ") & "set on the command line.");
+      Put_Line("Value of positional arg infile is: " & AP.String_Value("infile"));
+      Put_Line("Option infile was " & (if AP("infile").Set then "" else "not ") & "set on the command line.");
+      Put_Line("Value of positional arg count is: " & Natural'Image(AP.Natural_Value("count")));
+      Put_Line("Option count was " & (if AP("count").Set then "" else "not ") & "set on the command line.");
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
    end if;

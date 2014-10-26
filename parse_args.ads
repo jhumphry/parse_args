@@ -8,6 +8,7 @@ use Ada.Strings.Unbounded;
 
 with Ada.Containers;
 with Ada.Containers.Indefinite_Hashed_Maps, Ada.Strings.Hash;
+with Ada.Containers.Doubly_Linked_Lists;
 
 package Parse_Args is
 
@@ -40,6 +41,11 @@ package Parse_Args is
                         Short_Option : in Character := '-';
                         Long_Option : in String := ""
                        );
+
+   procedure Append_Positional(A : in out Argument_Parser;
+                               O : in Option_Ptr;
+                               Name : in String
+                              );
 
    function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
    function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr;
@@ -78,6 +84,10 @@ private
                                                                     Hash => Char_Hash,
                                                                     Equivalent_Keys => "=");
 
+   package Positional_Lists is new Ada.Containers.Doubly_Linked_Lists(Element_Type => Option_Ptr);
+   use type Positional_Lists.List;
+   use type Positional_Lists.Cursor;
+
    type Argument_Parser_State is (Init,
                                   Ready,
                                   Required_Argument,
@@ -92,6 +102,8 @@ private
       Arguments : Option_Maps.Map;
       Long_Options : Option_Maps.Map;
       Short_Options : Option_Char_Maps.Map;
+      Current_Positional : Positional_Lists.Cursor := Positional_Lists.No_Element;
+      Positional : Positional_Lists.List;
       Message : Unbounded_String;
    end record;
 
