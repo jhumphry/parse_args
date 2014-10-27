@@ -58,15 +58,23 @@ package body Parse_Args is
                   if is_options_end(Arg) then
                      A.State := Positional_Only;
 
-                  elsif is_long_option(Arg)
-                    and then A.Long_Options.Contains(long_option(Arg)) then
-                     Set_Option(A.Long_Options.Element(long_option(Arg)).all, A);
-                     A.Last_Option := A.Long_Options.Element(long_option(Arg));
+                  elsif is_long_option(Arg) then
+                     if A.Long_Options.Contains(long_option(Arg)) then
+                        Set_Option(A.Long_Options.Element(long_option(Arg)).all, A);
+                        A.Last_Option := A.Long_Options.Element(long_option(Arg));
+                     else
+                        A.Message := To_Unbounded_String("Unrecognised option: " & Arg);
+                        A.State := Finish_Erroneous;
+                     end if;
 
-                  elsif is_short_option(Arg)
-                    and then A.Short_Options.Contains(short_option(Arg)) then
-                     Set_Option(A.Short_Options.Element(short_option(Arg)).all, A);
-                     A.Last_Option := A.Short_Options.Element(short_option(Arg));
+                  elsif is_short_option(Arg) then
+                    if A.Short_Options.Contains(short_option(Arg)) then
+                        Set_Option(A.Short_Options.Element(short_option(Arg)).all, A);
+                        A.Last_Option := A.Short_Options.Element(short_option(Arg));
+                     else
+                        A.Message := To_Unbounded_String("Unrecognised option: " & Arg);
+                        A.State := Finish_Erroneous;
+                     end if;
 
                   elsif is_short_option_group(Arg) then
                      for C of short_option_group(Arg) loop
@@ -86,7 +94,7 @@ package body Parse_Args is
                            A.Last_Option := A.Short_Options.Element(C);
 
                         else
-                           A.Message := To_Unbounded_String("Unrecognised argument: " & C);
+                           A.Message := To_Unbounded_String("Unrecognised option: " & C);
                            A.State := Finish_Erroneous;
                            exit;
 
@@ -98,7 +106,7 @@ package body Parse_Args is
                      Positional_Lists.Next(A.Current_Positional);
 
                   else
-                     A.Message := To_Unbounded_String("Unrecognised argument: " & Arg);
+                     A.Message := To_Unbounded_String("Unrecognised option: " & Arg);
                      A.State := Finish_Erroneous;
 
                   end if;
@@ -120,7 +128,7 @@ package body Parse_Args is
                      Positional_Lists.Next(A.Current_Positional);
 
                   else
-                     A.Message := To_Unbounded_String("Unrecognised argument: " & Arg);
+                     A.Message := To_Unbounded_String("Additional unused argument: " & Arg);
                      A.State := Finish_Erroneous;
 
                   end if;
