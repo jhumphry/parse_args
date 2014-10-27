@@ -4,6 +4,7 @@
 -- Copyright James Humphry 2014
 
 with Ada.Command_Line;
+with Ada.Iterator_Interfaces;
 
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
@@ -15,7 +16,9 @@ with Ada.Containers.Doubly_Linked_Lists;
 package Parse_Args is
 
    type Argument_Parser is tagged limited private
-     with Constant_Indexing => Constant_Reference;
+     with Constant_Indexing => Constant_Reference,
+     Default_Iterator => Iterate,
+     Iterator_Element => Option;
 
    procedure Parse_Command_Line(A : in out Argument_Parser);
    function Parse_Success(A : in Argument_Parser) return Boolean;
@@ -42,14 +45,22 @@ package Parse_Args is
    -- The following definitions are to support the indexing, dereferencing and
    -- iteration over the Argument_Parser type
 
+   type Cursor is private;
+   function Has_Element(Position : Cursor) return Boolean;
+   function Option_Name(Position : Cursor) return String;
+
+   package Argument_Parser_Iterators is new Ada.Iterator_Interfaces(Cursor => Cursor,
+                                                                    Has_Element => Has_Element);
+   function Iterate (Container : in Argument_Parser)
+      return Argument_Parser_Iterators.Forward_Iterator'Class;
+
    type Option_Constant_Ref(Element : not null access Option'Class) is private
      with Implicit_Dereference => Element;
 
    function Constant_Reference(C : aliased in Argument_Parser;
                                Name : in String) return Option_Constant_Ref;
-
-   type Cursor is private;
-   function Has_Element (Position : Cursor) return Boolean;
+   function Constant_Reference(C : aliased in Argument_Parser;
+                               Position : in Cursor) return Option_Constant_Ref;
 
    -- The following definitions actually add options to the parser.
 
@@ -143,6 +154,14 @@ private
    type Option_Constant_Ref(Element : not null access Option'Class) is null record;
 
    type Cursor is new Option_Maps.Cursor;
+
+   type Argument_Parser_Iterator is new Argument_Parser_Iterators.Forward_Iterator with
+      record
+         Start : Option_Maps.Cursor;
+      end record;
+   function First (Object : Argument_Parser_Iterator) return Cursor;
+   function Next (Object : Argument_Parser_Iterator; Position : Cursor)
+                  return Cursor;
 
    -- Concrete options are not exposed to ensure that any options are not added
    -- to Argument_Parser inconsistently.

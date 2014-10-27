@@ -231,6 +231,56 @@ package body Parse_Args is
       end if;
    end String_Value;
 
+   -----------------
+   -- Has_Element --
+   -----------------
+
+   function Has_Element (Position : Cursor) return Boolean is
+     (Option_Maps.Has_Element(Option_Maps.Cursor(Position)));
+
+   -----------------
+   -- Option_Name --
+   -----------------
+
+   function Option_Name(Position : Cursor) return String is
+      (Option_Maps.Key(Option_Maps.Cursor(Position)));
+
+   -------------
+   -- Iterate --
+   -------------
+
+   function Iterate (Container : in Argument_Parser)
+                     return Argument_Parser_Iterators.Forward_Iterator'Class is
+   begin
+      return Argument_Parser_Iterator'(Start => Option_Maps.First(Container.Arguments));
+   end Iterate;
+
+   ------------------------
+   -- Constant_Reference --
+   ------------------------
+
+   function Constant_Reference
+     (C : aliased in Argument_Parser;
+      Name : in String)
+      return Option_Constant_Ref
+   is
+   begin
+      return Option_Constant_Ref'(Element => C.Arguments.Element(Name));
+   end Constant_Reference;
+
+   ------------------------
+   -- Constant_Reference --
+   ------------------------
+
+   function Constant_Reference
+     (C : aliased in Argument_Parser;
+      Position : in Cursor)
+      return Option_Constant_Ref
+   is
+   begin
+      return Option_Constant_Ref'(Element => Option_Maps.Element(Option_Maps.Cursor(Position)));
+   end Constant_Reference;
+
    ----------------
    -- Add_Option --
    ----------------
@@ -319,25 +369,20 @@ package body Parse_Args is
                                         );
    end Make_String_Option;
 
-   ------------------------
-   -- Constant_Reference --
-   ------------------------
+   -----------
+   -- First --
+   -----------
 
-   function Constant_Reference
-     (C : aliased in Argument_Parser;
-      Name : in String)
-      return Option_Constant_Ref
-   is
-   begin
-      return Option_Constant_Ref'(Element => C.Arguments.Element(Name));
-   end Constant_Reference;
+   function First (Object : Argument_Parser_Iterator) return Cursor is
+     (Cursor(Object.Start));
 
-   -----------------
-   -- Has_Element --
-   -----------------
+   ----------
+   -- Next --
+   ----------
 
-   function Has_Element (Position : Cursor) return Boolean is
-     (Option_Maps.Has_Element(Option_Maps.Cursor(Position)));
+   function Next (Object : Argument_Parser_Iterator; Position : Cursor)
+                  return Cursor is
+      (Cursor(Option_Maps.Next(Option_Maps.Cursor(Position))));
 
    ----------------
    -- Set_Option --
