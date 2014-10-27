@@ -201,9 +201,22 @@ package body Parse_Args is
       if A.Arguments.Contains(Name) and then A.Arguments(Name).all in Natural_Option'Class then
          return Natural_Option'Class(A.Arguments(Name).all).Value;
       else
-         raise Constraint_Error with "No suitable argument: " & Name & " with natural result.";
+         raise Constraint_Error with "No suitable argument: " & Name & " with natural number result.";
       end if;
    end Natural_Value;
+
+   -------------------
+   -- Integer_Value --
+   -------------------
+
+   function Integer_Value(A : Argument_Parser; Name : String) return Integer is
+   begin
+      if A.Arguments.Contains(Name) and then A.Arguments(Name).all in Integer_Option'Class then
+         return Integer_Option'Class(A.Arguments(Name).all).Value;
+      else
+         raise Constraint_Error with "No suitable argument: " & Name & " with integer result.";
+      end if;
+   end Integer_Value;
 
    -------------------
    -- String_Value --
@@ -281,6 +294,16 @@ package body Parse_Args is
                            Value => Default,
                            Default => Default
                           ));
+
+   -------------------------
+   -- Make_Integer_Option --
+   -------------------------
+
+   function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr is
+     (new Concrete_Integer_Option'(Set => False,
+                                   Value => Default,
+                                   Default => Default
+                                  ));
 
    ------------------------
    -- Make_String_Option --
@@ -363,6 +386,22 @@ package body Parse_Args is
       when Constraint_Error =>
          A.State := Finish_Erroneous;
          A.Message := To_Unbounded_String("Not a valid natural number: " & Arg);
+   end Set_Option_Argument;
+
+   -------------------------
+   -- Set_Option_Argument --
+   -------------------------
+
+   procedure Set_Option_Argument(O : in out Concrete_Integer_Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class) is
+   begin
+      O.Set := True;
+      O.Value := Integer'Value(Arg);
+   exception
+      when Constraint_Error =>
+         A.State := Finish_Erroneous;
+         A.Message := To_Unbounded_String("Not a valid integer: " & Arg);
    end Set_Option_Argument;
 
    -------------------------

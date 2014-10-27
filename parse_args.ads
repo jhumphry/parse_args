@@ -25,6 +25,7 @@ package Parse_Args is
 
    function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
    function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
+   function Integer_Value(A : in Argument_Parser; Name : in String) return Integer;
    function String_Value(A : in Argument_Parser; Name : in String) return String;
 
    type Option is abstract tagged limited record
@@ -53,6 +54,7 @@ package Parse_Args is
    function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
    function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr;
    function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
+   function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr;
    function Make_String_Option(Default : in String := "") return Option_Ptr;
 
    function Constant_Reference(C : aliased in Argument_Parser;
@@ -68,6 +70,9 @@ package Parse_Args is
 
    type Natural_Option is limited interface;
    function Value(A : in Natural_Option) return Natural is abstract;
+
+   type Integer_Option is limited interface;
+   function Value(A : in Integer_Option) return Integer is abstract;
 
    type String_Option is limited interface;
    function Value(A : in String_Option) return String is abstract;
@@ -149,6 +154,16 @@ private
 
    type Repeated_Option is new Concrete_Natural_Option with null record;
    procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
+
+   type Concrete_Integer_Option is new Option_With_Argument and Integer_Option with record
+      Value : Integer := 0;
+      Default : Integer := 0;
+   end record;
+   procedure Set_Option_Argument(O : in out Concrete_Integer_Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class);
+   function Value(A : in Concrete_Integer_Option) return Integer is (A.Value);
+
 
    type Concrete_String_Option is new Option_With_Argument and String_Option with record
       Value : Unbounded_String := Null_Unbounded_String;

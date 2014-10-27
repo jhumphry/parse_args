@@ -16,6 +16,7 @@ begin
    AP.Add_Option(Make_Boolean_Option(True), "bar", 'b');
    AP.Add_Option(Make_Repeated_Option(0), "baz", 'z');
    AP.Add_Option(Make_Natural_Option(0), "natural", 'n');
+   AP.Add_Option(Make_Integer_Option(-1), "integer", 'i');
    AP.Add_Option(Make_String_Option(""), "string", 's');
    AP.Append_Positional(Make_String_Option("INFILE"), "infile");
    AP.Append_Positional(Make_Natural_Option(4), "count");
@@ -32,6 +33,8 @@ begin
       Put_Line("Option baz was " & (if AP("baz").Set then "" else "not ") & "set on the command line.");
       Put_Line("Value of option natural is: " & Natural'Image(AP.Natural_Value("natural")));
       Put_Line("Option natural was " & (if AP("natural").Set then "" else "not ") & "set on the command line.");
+      Put_Line("Value of option integer is: " & Integer'Image(AP.Integer_Value("integer")));
+      Put_Line("Option integer was " & (if AP("integer").Set then "" else "not ") & "set on the command line.");
       Put_Line("Value of option string is: " & AP.String_Value("string"));
       Put_Line("Option string was " & (if AP("string").Set then "" else "not ") & "set on the command line.");
       Put_Line("Value of positional arg infile is: " & AP.String_Value("infile"));
