@@ -3,6 +3,8 @@
 -- A simple command line option parser
 -- Copyright James Humphry 2014
 
+with Ada.Command_Line;
+
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
 
@@ -18,7 +20,8 @@ package Parse_Args is
    procedure Parse_Command_Line(A : in out Argument_Parser);
    function Parse_Success(A : in Argument_Parser) return Boolean;
    function Parse_Message(A : in Argument_Parser) return String;
-   function Command_Name(A : in Argument_Parser) return String;
+   function Command_Name(A : in Argument_Parser) return String is
+     (Ada.Command_Line.Command_Name);
 
    function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
    function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
@@ -71,6 +74,20 @@ package Parse_Args is
 
 private
 
+   -- These functions shadow the standard library, but if they are used in a
+   -- dispatching way they can be over-ridden in derived types, which is useful
+   -- if you want to test the Argument_Parser code but with data fed in from
+   -- a test framework rather than the operating system.
+   -- Note that Command_Name is exposed directly above.
+
+   function Argument_Count(A : in Argument_Parser) return Natural is
+     (Ada.Command_Line.Argument_Count);
+   function Argument(A : in Argument_Parser; Number : in Positive) return String is
+     (Ada.Command_Line.Argument(Number));
+
+   -- The following instantiations of the standard containers are used as the
+   -- basic data structures for storing information on options
+
    package Option_Maps is new Ada.Containers.Indefinite_Hashed_Maps(Key_Type => String,
                                                                     Element_Type => Option_Ptr,
                                                                     Hash => Ada.Strings.Hash,
@@ -88,6 +105,10 @@ private
    use type Positional_Lists.List;
    use type Positional_Lists.Cursor;
 
+   -- The core of the Argument_Parser is a finite state machine that starts in
+   -- the Init state and should end either in the Finish_Success or Finish_Erroneous
+   -- states
+
    type Argument_Parser_State is (Init,
                                   Ready,
                                   Required_Argument,
@@ -98,7 +119,6 @@ private
    type Argument_Parser is tagged limited record
       State : Argument_Parser_State := Init;
       Last_Option : access Option'Class;
-      Command_Name : Unbounded_String;
       Arguments : Option_Maps.Map;
       Long_Options : Option_Maps.Map;
       Short_Options : Option_Char_Maps.Map;
@@ -106,6 +126,9 @@ private
       Positional : Positional_Lists.List;
       Message : Unbounded_String;
    end record;
+
+   -- Concrete options are not exposed to ensure that any options are not added
+   -- to Argument_Parser inconsistently.
 
    type Concrete_Boolean_Option is new Option and Boolean_Option with record
       Value : Boolean := False;

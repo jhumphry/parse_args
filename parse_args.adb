@@ -3,8 +3,6 @@
 -- A simple command line option parser
 -- Copyright James Humphry 2014
 
-with Ada.Command_Line;
-
 package body Parse_Args is
 
    ------------------------
@@ -43,7 +41,6 @@ package body Parse_Args is
       end if;
 
       A.State := Ready;
-      A.Command_Name := To_Unbounded_String(Ada.Command_Line.Command_Name);
       A.Current_Positional := A.Positional.First;
       A.Last_Option := null;
       -- Last_Option holds a pointer to the option seen in the previous loop
@@ -51,7 +48,7 @@ package body Parse_Args is
 
       for I in 1..Ada.Command_Line.Argument_Count loop
          declare
-            Arg : constant String := Ada.Command_Line.Argument(I);
+            Arg : constant String := Argument_Parser'Class(A).Argument(I);
          begin
             case A.State is
                when Init | Finish_Success =>
@@ -173,15 +170,6 @@ package body Parse_Args is
             raise Program_Error with "No parse yet taken place?";
       end case;
    end Parse_Message;
-
-   ------------------
-   -- Command_Name --
-   ------------------
-
-   function Command_Name (A : Argument_Parser) return String is
-   begin
-      return To_String(A.Command_Name);
-   end Command_Name;
 
    -------------------
    -- Boolean_Value --
