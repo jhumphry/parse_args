@@ -326,11 +326,18 @@ package body Parse_Args is
    function Constant_Reference
      (C : aliased in Argument_Parser;
       Name : in String)
-      return Option_Ptr
+      return Option_Constant_Ref
    is
    begin
-      return C.Arguments(Name);
+      return Option_Constant_Ref'(Element => C.Arguments.Element(Name));
    end Constant_Reference;
+
+   -----------------
+   -- Has_Element --
+   -----------------
+
+   function Has_Element (Position : Cursor) return Boolean is
+     (Option_Maps.Has_Element(Option_Maps.Cursor(Position)));
 
    ----------------
    -- Set_Option --

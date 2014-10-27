@@ -39,6 +39,20 @@ package Parse_Args is
 
    type Option_Ptr is not null access Option'Class;
 
+   -- The following definitions are to support the indexing, dereferencing and
+   -- iteration over the Argument_Parser type
+
+   type Option_Constant_Ref(Element : not null access Option'Class) is private
+     with Implicit_Dereference => Element;
+
+   function Constant_Reference(C : aliased in Argument_Parser;
+                               Name : in String) return Option_Constant_Ref;
+
+   type Cursor is private;
+   function Has_Element (Position : Cursor) return Boolean;
+
+   -- The following definitions actually add options to the parser.
+
    procedure Add_Option(A : in out Argument_Parser;
                         O : in Option_Ptr;
                         Name : in String;
@@ -56,12 +70,6 @@ package Parse_Args is
    function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
    function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr;
    function Make_String_Option(Default : in String := "") return Option_Ptr;
-
-   function Constant_Reference(C : aliased in Argument_Parser;
-                               Name : in String) return Option_Ptr;
-
-   type Option_With_Argument is abstract new Option with null record;
-   procedure Set_Option(O : in out Option_With_Argument; A : in out Argument_Parser'Class);
 
    -- Define interfaces to specify different possible return values
 
@@ -132,8 +140,15 @@ private
       Message : Unbounded_String;
    end record;
 
+   type Option_Constant_Ref(Element : not null access Option'Class) is null record;
+
+   type Cursor is new Option_Maps.Cursor;
+
    -- Concrete options are not exposed to ensure that any options are not added
    -- to Argument_Parser inconsistently.
+
+   type Option_With_Argument is abstract new Option with null record;
+   procedure Set_Option(O : in out Option_With_Argument; A : in out Argument_Parser'Class);
 
    type Concrete_Boolean_Option is new Option and Boolean_Option with record
       Value : Boolean := False;
