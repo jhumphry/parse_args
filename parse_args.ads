@@ -38,6 +38,7 @@ package Parse_Args is
    procedure Set_Option_Argument(O : in out Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class) is null;
+   function Image(O : in Option) return String is abstract;
 
    type Option_Ptr is not null access Option'Class;
 

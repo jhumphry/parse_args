@@ -26,17 +26,11 @@ begin
    if AP.Parse_Success then
       Put_Line("Command name is: " & AP.Command_Name);
 
-      Put_Line("Value of option foo is: " & Boolean'Image(AP.Boolean_Value("foo")));
-      Put_Line("Value of option bar is: " & Boolean'Image(AP.Boolean_Value("bar")));
-      Put_Line("Value of option baz is: " & Natural'Image(AP.Natural_Value("baz")));
-      Put_Line("Value of option natural is: " & Natural'Image(AP.Natural_Value("natural")));
-      Put_Line("Value of option integer is: " & Integer'Image(AP.Integer_Value("integer")));
-      Put_Line("Value of option string is: " & AP.String_Value("string"));
-      Put_Line("Value of positional arg infile is: " & AP.String_Value("infile"));
-      Put_Line("Value of positional arg count is: " & Natural'Image(AP.Natural_Value("count")));
-
       for I in AP.Iterate loop
-         Put_Line("Option "& Option_Name(I) &" was " & (if AP(I).Set then "" else "not ") & "set on the command line.");
+         Put_Line("Option "& Option_Name(I) & " was " &
+                  (if AP(I).Set then "" else "not ") &
+                    "set on the command line. Value: " &
+                    AP(I).Image);
       end loop;
 
    else

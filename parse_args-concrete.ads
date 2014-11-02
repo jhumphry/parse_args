@@ -21,7 +21,8 @@ private package Parse_Args.Concrete is
       Default : Boolean := False;
    end record;
    procedure Set_Option(O : in out Concrete_Boolean_Option; A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_Boolean_Option) return Boolean is (A.Value);
+   function Image(O : in  Concrete_Boolean_Option) return String is (Boolean'Image(O.Value));
+   function Value(O : in Concrete_Boolean_Option) return Boolean is (O.Value);
 
 
    type Concrete_Natural_Option is new Option_With_Argument and Natural_Option with record
@@ -31,7 +32,8 @@ private package Parse_Args.Concrete is
    procedure Set_Option_Argument(O : in out Concrete_Natural_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_Natural_Option) return Natural is (A.Value);
+   function Image(O : in  Concrete_Natural_Option) return String is (Natural'Image(O.Value));
+   function Value(O : in Concrete_Natural_Option) return Natural is (O.Value);
 
    type Repeated_Option is new Concrete_Natural_Option with null record;
    procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
@@ -43,7 +45,8 @@ private package Parse_Args.Concrete is
    procedure Set_Option_Argument(O : in out Concrete_Integer_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_Integer_Option) return Integer is (A.Value);
+   function Image(O : in  Concrete_Integer_Option) return String is (Integer'Image(O.Value));
+   function Value(O : in Concrete_Integer_Option) return Integer is (O.Value);
 
 
    type Concrete_String_Option is new Option_With_Argument and String_Option with record
@@ -53,6 +56,7 @@ private package Parse_Args.Concrete is
    procedure Set_Option_Argument(O : in out Concrete_String_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_String_Option) return String is (To_String(A.Value));
+   function Value(O : in Concrete_String_Option) return String is (To_String(O.Value));
+   function Image(O : in Concrete_String_Option) return String renames Value;
 
 end Parse_Args.Concrete;
