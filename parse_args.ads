@@ -6,12 +6,11 @@
 with Ada.Command_Line;
 with Ada.Iterator_Interfaces;
 
-with Ada.Strings.Unbounded;
-use Ada.Strings.Unbounded;
+private with Ada.Strings.Unbounded;
 
-with Ada.Containers;
-with Ada.Containers.Indefinite_Hashed_Maps, Ada.Strings.Hash;
-with Ada.Containers.Doubly_Linked_Lists;
+private with Ada.Containers;
+private with Ada.Containers.Indefinite_Hashed_Maps, Ada.Strings.Hash;
+private with Ada.Containers.Doubly_Linked_Lists;
 
 package Parse_Args is
 
@@ -98,6 +97,8 @@ package Parse_Args is
 
 private
 
+   use Ada.Strings.Unbounded;
+
    -- These functions shadow the standard library, but if they are used in a
    -- dispatching way they can be over-ridden in derived types, which is useful
    -- if you want to test the Argument_Parser code but with data fed in from
@@ -163,49 +164,5 @@ private
    function Next (Object : Argument_Parser_Iterator; Position : Cursor)
                   return Cursor;
 
-   -- Concrete options are not exposed to ensure that any options are not added
-   -- to Argument_Parser inconsistently.
-
-   type Option_With_Argument is abstract new Option with null record;
-   procedure Set_Option(O : in out Option_With_Argument; A : in out Argument_Parser'Class);
-
-   type Concrete_Boolean_Option is new Option and Boolean_Option with record
-      Value : Boolean := False;
-      Default : Boolean := False;
-   end record;
-   procedure Set_Option(O : in out Concrete_Boolean_Option; A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_Boolean_Option) return Boolean is (A.Value);
-
-
-   type Concrete_Natural_Option is new Option_With_Argument and Natural_Option with record
-      Value : Natural := 0;
-      Default : Natural := 0;
-   end record;
-   procedure Set_Option_Argument(O : in out Concrete_Natural_Option;
-                                 Arg : in String;
-                                 A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_Natural_Option) return Natural is (A.Value);
-
-   type Repeated_Option is new Concrete_Natural_Option with null record;
-   procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
-
-   type Concrete_Integer_Option is new Option_With_Argument and Integer_Option with record
-      Value : Integer := 0;
-      Default : Integer := 0;
-   end record;
-   procedure Set_Option_Argument(O : in out Concrete_Integer_Option;
-                                 Arg : in String;
-                                 A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_Integer_Option) return Integer is (A.Value);
-
-
-   type Concrete_String_Option is new Option_With_Argument and String_Option with record
-      Value : Unbounded_String := Null_Unbounded_String;
-      Default : Unbounded_String := Null_Unbounded_String;
-   end record;
-   procedure Set_Option_Argument(O : in out Concrete_String_Option;
-                                 Arg : in String;
-                                 A : in out Argument_Parser'Class);
-   function Value(A : in Concrete_String_Option) return String is (To_String(A.Value));
 
 end Parse_Args;
