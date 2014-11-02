@@ -19,18 +19,25 @@ begin
    AP.Add_Option(Make_Integer_Option(-1), "integer", 'i');
    AP.Add_Option(Make_String_Option(""), "string", 's');
    AP.Append_Positional(Make_String_Option("INFILE"), "infile");
-   AP.Append_Positional(Make_Natural_Option(4), "count");
+   AP.Allow_Tail_Arguments;
 
    AP.Parse_Command_Line;
 
    if AP.Parse_Success then
       Put_Line("Command name is: " & AP.Command_Name);
+      New_Line;
 
       for I in AP.Iterate loop
          Put_Line("Option "& Option_Name(I) & " was " &
                   (if AP(I).Set then "" else "not ") &
                     "set on the command line. Value: " &
                     AP(I).Image);
+      end loop;
+      New_Line;
+
+      Put_Line("There were: " & Natural'Image(AP.Tail_Length) & " tail arguments.");
+      for I in 1..AP.Tail_Length loop
+         Put_Line("Argument" & Integer'Image(I) & " is: " & AP.Tail(I));
       end loop;
 
    else

@@ -108,6 +108,9 @@ package body Parse_Args is
                      Set_Option_Argument(Positional_Lists.Element(A.Current_Positional).all, Arg, A);
                      Positional_Lists.Next(A.Current_Positional);
 
+                  elsif A.Allow_Tail then
+                     A.Tail.Append(To_Unbounded_String(Arg));
+
                   else
                      A.Message := To_Unbounded_String("Unrecognised option: " & Arg);
                      A.State := Finish_Erroneous;
@@ -129,6 +132,9 @@ package body Parse_Args is
                   if A.Current_Positional /= Positional_Lists.No_Element then
                      Set_Option_Argument(Positional_Lists.Element(A.Current_Positional).all, Arg, A);
                      Positional_Lists.Next(A.Current_Positional);
+
+                  elsif A.Allow_Tail then
+                     A.Tail.Append(To_Unbounded_String(Arg));
 
                   else
                      A.Message := To_Unbounded_String("Additional unused argument: " & Arg);
@@ -233,6 +239,20 @@ package body Parse_Args is
          raise Constraint_Error with "No suitable argument: " & Name & " with string result.";
       end if;
    end String_Value;
+
+   -----------------
+   -- Tail_Length --
+   -----------------
+
+   function Tail_Length(A : in Argument_Parser) return Natural is
+     (Natural(A.Tail.Length));
+
+   ----------
+   -- Tail --
+   ----------
+
+   function Tail(A: in Argument_Parser; N : Positive) return String is
+      (To_String(A.Tail.Element(N)));
 
    -----------------
    -- Has_Element --
@@ -371,6 +391,16 @@ package body Parse_Args is
                                          Default => Default_US
                                         );
    end Make_String_Option;
+
+   --------------------------
+   -- Allow_Tail_Arguments --
+   --------------------------
+
+   procedure Allow_Tail_Arguments(A : in out Argument_Parser;
+                                  Allow : in Boolean := True) is
+   begin
+      A.Allow_Tail := Allow;
+   end Allow_Tail_Arguments;
 
    -----------
    -- First --

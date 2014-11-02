@@ -11,6 +11,7 @@ private with Ada.Strings.Unbounded;
 private with Ada.Containers;
 private with Ada.Containers.Indefinite_Hashed_Maps, Ada.Strings.Hash;
 private with Ada.Containers.Doubly_Linked_Lists;
+private with Ada.Containers.Vectors;
 
 package Parse_Args is
 
@@ -29,6 +30,9 @@ package Parse_Args is
    function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
    function Integer_Value(A : in Argument_Parser; Name : in String) return Integer;
    function String_Value(A : in Argument_Parser; Name : in String) return String;
+
+   function Tail_Length(A : in Argument_Parser) return Natural;
+   function Tail(A: in Argument_Parser; N : Positive) return String;
 
    type Option is abstract tagged limited record
       Set : Boolean := False;
@@ -82,6 +86,9 @@ package Parse_Args is
    function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr;
    function Make_String_Option(Default : in String := "") return Option_Ptr;
 
+   procedure Allow_Tail_Arguments(A : in out Argument_Parser;
+                            Allow : in Boolean := True);
+
    -- Define interfaces to specify different possible return values
 
    type Boolean_Option is limited interface;
@@ -131,6 +138,11 @@ private
    use type Positional_Lists.List;
    use type Positional_Lists.Cursor;
 
+   package Unbounded_String_Vector is new Ada.Containers.Vectors(Index_Type => Positive,
+                                                                 Element_Type => Unbounded_String);
+   use type Unbounded_String_Vector.Vector;
+   use type Unbounded_String_Vector.Cursor;
+
    -- The core of the Argument_Parser is a finite state machine that starts in
    -- the Init state and should end either in the Finish_Success or Finish_Erroneous
    -- states
@@ -144,13 +156,15 @@ private
 
    type Argument_Parser is tagged limited record
       State : Argument_Parser_State := Init;
-      Last_Option : access Option'Class;
-      Arguments : Option_Maps.Map;
-      Long_Options : Option_Maps.Map;
-      Short_Options : Option_Char_Maps.Map;
+      Last_Option : access Option'Class := null;
+      Arguments : Option_Maps.Map := Option_Maps.Empty_Map;
+      Long_Options : Option_Maps.Map := Option_Maps.Empty_Map;
+      Short_Options : Option_Char_Maps.Map := Option_Char_Maps.Empty_Map;
       Current_Positional : Positional_Lists.Cursor := Positional_Lists.No_Element;
-      Positional : Positional_Lists.List;
-      Message : Unbounded_String;
+      Positional : Positional_Lists.List := Positional_Lists.Empty_List;
+      Allow_Tail : Boolean := False;
+      Tail : Unbounded_String_Vector.Vector := Unbounded_String_Vector.Empty_Vector;
+      Message : Unbounded_String := Null_Unbounded_String;
    end record;
 
    type Option_Constant_Ref(Element : not null access Option'Class) is null record;
@@ -164,6 +178,5 @@ private
    function First (Object : Argument_Parser_Iterator) return Cursor;
    function Next (Object : Argument_Parser_Iterator; Position : Cursor)
                   return Cursor;
-
 
 end Parse_Args;
