@@ -35,10 +35,16 @@ begin
       end loop;
       New_Line;
 
-      Put_Line("There were: " & Natural'Image(AP.Tail_Length) & " tail arguments.");
-      for I in 1..AP.Tail_Length loop
-         Put_Line("Argument" & Integer'Image(I) & " is: " & AP.Tail(I));
-      end loop;
+      Put_Line("There were: " & Integer'Image(Integer(AP.Tail.Length)) & " tail arguments.");
+      declare
+         I : Integer := 1;
+      begin
+         for J of AP.Tail loop
+            Put_Line("Argument" & Integer'Image(I) & " is: " & J);
+            I := I + 1;
+         end loop;
+      end;
+
 
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);

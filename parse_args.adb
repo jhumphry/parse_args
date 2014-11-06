@@ -109,7 +109,7 @@ package body Parse_Args is
                      Positional_Lists.Next(A.Current_Positional);
 
                   elsif A.Allow_Tail then
-                     A.Tail.Append(To_Unbounded_String(Arg));
+                     A.Tail.Append(Arg);
 
                   else
                      A.Message := To_Unbounded_String("Unrecognised option: " & Arg);
@@ -134,7 +134,7 @@ package body Parse_Args is
                      Positional_Lists.Next(A.Current_Positional);
 
                   elsif A.Allow_Tail then
-                     A.Tail.Append(To_Unbounded_String(Arg));
+                     A.Tail.Append(Arg);
 
                   else
                      A.Message := To_Unbounded_String("Additional unused argument: " & Arg);
@@ -240,19 +240,12 @@ package body Parse_Args is
       end if;
    end String_Value;
 
-   -----------------
-   -- Tail_Length --
-   -----------------
-
-   function Tail_Length(A : in Argument_Parser) return Natural is
-     (Natural(A.Tail.Length));
-
    ----------
    -- Tail --
    ----------
 
-   function Tail(A: in Argument_Parser; N : Positive) return String is
-      (To_String(A.Tail.Element(N)));
+   function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List is
+      (A.Tail);
 
    -----------------
    -- Has_Element --

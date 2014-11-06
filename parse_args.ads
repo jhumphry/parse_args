@@ -5,15 +5,18 @@
 
 with Ada.Command_Line;
 with Ada.Iterator_Interfaces;
+with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 
 private with Ada.Strings.Unbounded;
-
 private with Ada.Containers;
 private with Ada.Containers.Indefinite_Hashed_Maps, Ada.Strings.Hash;
 private with Ada.Containers.Doubly_Linked_Lists;
-private with Ada.Containers.Vectors;
 
 package Parse_Args is
+
+   package String_Doubly_Linked_Lists is
+     new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => String);
+   use type String_Doubly_Linked_Lists.List;
 
    type Argument_Parser is tagged limited private
      with Constant_Indexing => Constant_Reference,
@@ -31,8 +34,7 @@ package Parse_Args is
    function Integer_Value(A : in Argument_Parser; Name : in String) return Integer;
    function String_Value(A : in Argument_Parser; Name : in String) return String;
 
-   function Tail_Length(A : in Argument_Parser) return Natural;
-   function Tail(A: in Argument_Parser; N : Positive) return String;
+   function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List;
 
    type Option is abstract tagged limited record
       Set : Boolean := False;
@@ -138,11 +140,6 @@ private
    use type Positional_Lists.List;
    use type Positional_Lists.Cursor;
 
-   package Unbounded_String_Vector is new Ada.Containers.Vectors(Index_Type => Positive,
-                                                                 Element_Type => Unbounded_String);
-   use type Unbounded_String_Vector.Vector;
-   use type Unbounded_String_Vector.Cursor;
-
    -- The core of the Argument_Parser is a finite state machine that starts in
    -- the Init state and should end either in the Finish_Success or Finish_Erroneous
    -- states
@@ -163,7 +160,7 @@ private
       Current_Positional : Positional_Lists.Cursor := Positional_Lists.No_Element;
       Positional : Positional_Lists.List := Positional_Lists.Empty_List;
       Allow_Tail : Boolean := False;
-      Tail : Unbounded_String_Vector.Vector := Unbounded_String_Vector.Empty_Vector;
+      Tail : String_Doubly_Linked_Lists.List := String_Doubly_Linked_Lists.Empty_List;
       Message : Unbounded_String := Null_Unbounded_String;
    end record;
 
