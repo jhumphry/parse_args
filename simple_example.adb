@@ -12,18 +12,29 @@ use Ada.Text_IO;
 procedure Simple_Example is
    AP : Argument_Parser;
 begin
-   AP.Add_Option(Make_Boolean_Option(False), "foo", 'f');
-   AP.Add_Option(Make_Boolean_Option(True), "bar", 'b');
-   AP.Add_Option(Make_Repeated_Option(0), "baz", 'z');
-   AP.Add_Option(Make_Natural_Option(0), "natural", 'n');
-   AP.Add_Option(Make_Integer_Option(-1), "integer", 'i');
-   AP.Add_Option(Make_String_Option(""), "string", 's');
+   AP.Add_Option(Make_Boolean_Option(False), "help", 'h', Usage => "Display this help text");
+   AP.Add_Option(Make_Boolean_Option(False), "foo", 'f', Usage => "The foo option");
+   AP.Add_Option(Make_Boolean_Option(True), "bar", 'b', Usage => "The bar option");
+   AP.Add_Option(Make_Repeated_Option(0), "baz", 'z',
+                 Usage => "The baz option (can be repeated for more baz)");
+   AP.Add_Option(Make_Boolean_Option(False), "long-only",
+                 Long_Option => "long-only",
+                 Usage => "The --long-only option has no short version");
+   AP.Add_Option(Make_Boolean_Option(False), "short-only",
+                 Short_Option => 'x', Long_Option => "-",
+                 Usage => "The -x option has no long version");
+   AP.Add_Option(Make_Natural_Option(0), "natural", 'n', Usage => "Specify a natural number argument");
+   AP.Add_Option(Make_Integer_Option(-1), "integer", 'i', Usage => "Specify an integer argument");
+   AP.Add_Option(Make_String_Option(""), "string", 's', Usage => "Specify a string argument");
    AP.Append_Positional(Make_String_Option("INFILE"), "infile");
    AP.Allow_Tail_Arguments;
+   AP.Set_Prologue("A simple demonstration of the Parse_Args library.");
 
    AP.Parse_Command_Line;
 
-   if AP.Parse_Success then
+   if AP.Parse_Success and then AP.Boolean_Value("help") then
+      AP.Usage;
+   elsif AP.Parse_Success then
       Put_Line("Command name is: " & AP.Command_Name);
       New_Line;
 

@@ -188,6 +188,12 @@ package body Parse_Args is
       end case;
    end Parse_Message;
 
+   -----------
+   -- Usage --
+   -----------
+
+   procedure Usage(A : in Argument_Parser) is separate;
+
    -------------------
    -- Boolean_Value --
    -------------------
@@ -305,18 +311,40 @@ package body Parse_Args is
                         O : in Option_Ptr;
                         Name : in String;
                         Short_Option : in Character := '-';
-                        Long_Option : in String := ""
-                        ) is
+                        Long_Option : in String := "";
+                        Usage : in String := ""
+                       ) is
    begin
       A.Arguments.Insert(Name, O);
       if Short_Option /= '-' then
          A.Short_Options.Insert(Short_Option, O);
       end if;
-      if Long_Option'Length > 0  then
-         A.Long_Options.Insert(Long_Option, O);
-      else
+
+      if Long_Option = "" then
          A.Long_Options.Insert(Name, O);
+         A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
+                                                   Positional => False,
+                                                   Long_Option => To_Unbounded_String(Name),
+                                                   Short_Option => Short_Option,
+                                                   Usage => To_Unbounded_String(Usage)));
+      elsif Long_Option /= "-" then
+         A.Long_Options.Insert(Long_Option, O);
+         A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
+                                                   Positional => False,
+                                                   Long_Option => To_Unbounded_String(Long_Option),
+                                                   Short_Option => Short_Option,
+                                                   Usage => To_Unbounded_String(Usage)));
+      else
+         A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
+                                                   Positional => False,
+                                                   Long_Option => Null_Unbounded_String,
+                                                   Short_Option => Short_Option,
+                                                   Usage => To_Unbounded_String(Usage)));
       end if;
+
+
+
+
    end Add_Option;
 
    -----------------------
@@ -324,12 +352,17 @@ package body Parse_Args is
    -----------------------
 
    procedure Append_Positional(A : in out Argument_Parser;
-                            O : in Option_Ptr;
-                            Name : in String
-                           ) is
+                               O : in Option_Ptr;
+                               Name : in String
+                              ) is
    begin
       A.Arguments.Insert(Name, O);
       A.Positional.Append(O);
+      A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
+                                                Positional => True,
+                                                Long_Option => Null_Unbounded_String,
+                                                Short_Option => '-',
+                                                Usage => Null_Unbounded_String));
    end Append_Positional;
 
    -------------------------
@@ -394,6 +427,16 @@ package body Parse_Args is
    begin
       A.Allow_Tail := Allow;
    end Allow_Tail_Arguments;
+
+   ------------------
+   -- Set_Prologue --
+   ------------------
+
+   procedure Set_Prologue(A: in out Argument_Parser;
+                          Prologue : in String) is
+   begin
+      A.Prologue := To_Unbounded_String(Prologue);
+   end Set_Prologue;
 
    -----------
    -- First --

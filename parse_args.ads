@@ -28,6 +28,7 @@ package Parse_Args is
    function Parse_Message(A : in Argument_Parser) return String;
    function Command_Name(A : in Argument_Parser) return String is
      (Ada.Command_Line.Command_Name);
+   procedure Usage(A : in Argument_Parser);
 
    function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
    function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
@@ -74,7 +75,8 @@ package Parse_Args is
                         O : in Option_Ptr;
                         Name : in String;
                         Short_Option : in Character := '-';
-                        Long_Option : in String := ""
+                        Long_Option : in String := "";
+                        Usage : in String := ""
                        );
 
    procedure Append_Positional(A : in out Argument_Parser;
@@ -89,7 +91,10 @@ package Parse_Args is
    function Make_String_Option(Default : in String := "") return Option_Ptr;
 
    procedure Allow_Tail_Arguments(A : in out Argument_Parser;
-                            Allow : in Boolean := True);
+                                  Allow : in Boolean := True);
+
+   procedure Set_Prologue(A: in out Argument_Parser;
+                          Prologue : in String);
 
    -- Define interfaces to specify different possible return values
 
@@ -140,6 +145,19 @@ private
    use type Positional_Lists.List;
    use type Positional_Lists.Cursor;
 
+   type Option_Help is
+      record
+         Name : Unbounded_String := Null_Unbounded_String;
+         Positional : Boolean := False;
+         Long_Option : Unbounded_String := Null_Unbounded_String;
+         Short_Option : Character := '-';
+         Usage : Unbounded_String := Null_Unbounded_String;
+      end record;
+
+   package Option_Help_Lists is new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => Option_Help);
+   use type Option_Help_Lists.List;
+   use type Option_Help_Lists.Cursor;
+
    -- The core of the Argument_Parser is a finite state machine that starts in
    -- the Init state and should end either in the Finish_Success or Finish_Erroneous
    -- states
@@ -162,6 +180,8 @@ private
       Allow_Tail : Boolean := False;
       Tail : String_Doubly_Linked_Lists.List := String_Doubly_Linked_Lists.Empty_List;
       Message : Unbounded_String := Null_Unbounded_String;
+      Prologue : Unbounded_String := Null_Unbounded_String;
+      Option_Help_Details : Option_Help_Lists.List := Option_Help_Lists.Empty_List;
    end record;
 
    type Option_Constant_Ref(Element : not null access Option'Class) is null record;
