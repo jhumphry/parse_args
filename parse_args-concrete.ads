@@ -20,6 +20,8 @@
 -- types directly. Instead the factory functions in the parent package are used,
 -- as these ensure that the options will be indexed and referenced correctly.
 
+pragma Profile(No_Implementation_Extensions);
+
 private package Parse_Args.Concrete is
 
    -- Concrete options are not exposed to ensure that any options are not added

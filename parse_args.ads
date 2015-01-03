@@ -15,6 +15,8 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
+pragma Profile(No_Implementation_Extensions);
+
 with Ada.Command_Line;
 with Ada.Iterator_Interfaces;
 with Ada.Containers.Indefinite_Doubly_Linked_Lists;
