@@ -1,0 +1,34 @@
+library project Parse_Args is
+
+   Version := "0.1.0";
+
+   for Library_Name use "parse_args";
+   for Library_Kind use "dynamic";
+   for Library_Version use "libparse_args.so." & Version;
+   for Library_Standalone use "standard";
+   for Library_Interface use ("Parse_Args");
+
+   for Source_Dirs use ("./");
+   for Excluded_Source_Files use ("simple_example.adb");
+   for Object_Dir use "build/";
+   for Library_Dir use "lib/";
+   for Exec_Dir use "exec/";
+
+   package Ide is
+      for Vcs_Kind use "Git";
+      for Documentation_Dir use "doc/";
+   end Ide;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-j2");
+   end Builder;
+
+   package Compiler is
+      for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-O", "-fPIC");
+   end Compiler;
+
+   package Linker is
+   end Linker;
+
+end Parse_Args;
+
