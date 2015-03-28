@@ -440,8 +440,10 @@ package body Parse_Args is
    --------------------------
 
    procedure Allow_Tail_Arguments(A : in out Argument_Parser;
+                                  Usage : in String := "ARGUMENTS";
                                   Allow : in Boolean := True) is
    begin
+      A.Tail_Usage := To_Unbounded_String(Usage);
       A.Allow_Tail := Allow;
    end Allow_Tail_Arguments;
 

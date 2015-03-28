@@ -106,6 +106,7 @@ package Parse_Args is
    function Make_String_Option(Default : in String := "") return Option_Ptr;
 
    procedure Allow_Tail_Arguments(A : in out Argument_Parser;
+                                  Usage : in String := "ARGUMENTS";
                                   Allow : in Boolean := True);
 
    procedure Set_Prologue(A: in out Argument_Parser;
@@ -193,6 +194,7 @@ private
       Current_Positional : Positional_Lists.Cursor := Positional_Lists.No_Element;
       Positional : Positional_Lists.List := Positional_Lists.Empty_List;
       Allow_Tail : Boolean := False;
+      Tail_Usage : Unbounded_String := Null_Unbounded_String;
       Tail : String_Doubly_Linked_Lists.List := String_Doubly_Linked_Lists.Empty_List;
       Message : Unbounded_String := Null_Unbounded_String;
       Prologue : Unbounded_String := Null_Unbounded_String;

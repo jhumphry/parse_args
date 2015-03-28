@@ -39,7 +39,7 @@ begin
    end loop;
 
    if A.Allow_Tail then
-      Put("...");
+      Put(" [" & To_String(A.Tail_Usage) & "]...");
    end if;
 
    New_Line;
