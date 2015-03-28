@@ -326,38 +326,41 @@ package body Parse_Args is
                         Name : in String;
                         Short_Option : in Character := '-';
                         Long_Option : in String := "";
-                        Usage : in String := ""
+                        Usage : in String := "";
+                        Prepend_Usage : in Boolean := False
                        ) is
+      Pos : Option_Help_Lists.Cursor;
+      Final_Long_Option : Unbounded_String;
    begin
       A.Arguments.Insert(Name, O);
+
+      if Prepend_Usage then
+         Pos := A.Option_Help_Details.First;
+      else
+         Pos := Option_Help_Lists.No_Element;
+      end if;
+
       if Short_Option /= '-' then
          A.Short_Options.Insert(Short_Option, O);
       end if;
 
       if Long_Option = "" then
          A.Long_Options.Insert(Name, O);
-         A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
-                                                   Positional => False,
-                                                   Long_Option => To_Unbounded_String(Name),
-                                                   Short_Option => Short_Option,
-                                                   Usage => To_Unbounded_String(Usage)));
+         Final_Long_Option := To_Unbounded_String(Name);
       elsif Long_Option /= "-" then
          A.Long_Options.Insert(Long_Option, O);
-         A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
-                                                   Positional => False,
-                                                   Long_Option => To_Unbounded_String(Long_Option),
-                                                   Short_Option => Short_Option,
-                                                   Usage => To_Unbounded_String(Usage)));
+         Final_Long_Option := To_Unbounded_String(Long_Option);
       else
-         A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
-                                                   Positional => False,
-                                                   Long_Option => Null_Unbounded_String,
-                                                   Short_Option => Short_Option,
-                                                   Usage => To_Unbounded_String(Usage)));
+         Final_Long_Option := Null_Unbounded_String;
       end if;
 
-
-
+      A.Option_Help_Details.Insert(Before => Pos,
+                                   New_Item => Option_Help'(Name => To_Unbounded_String(Name),
+                                                            Positional => False,
+                                                            Long_Option => Final_Long_Option,
+                                                            Short_Option => Short_Option,
+                                                            Usage => To_Unbounded_String(Usage))
+                                  );
 
    end Add_Option;
 

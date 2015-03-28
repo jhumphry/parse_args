@@ -90,7 +90,8 @@ package Parse_Args is
                         Name : in String;
                         Short_Option : in Character := '-';
                         Long_Option : in String := "";
-                        Usage : in String := ""
+                        Usage : in String := "";
+                        Prepend_Usage : in Boolean := False
                        );
 
    procedure Append_Positional(A : in out Argument_Parser;
