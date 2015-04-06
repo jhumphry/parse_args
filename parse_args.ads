@@ -32,6 +32,9 @@ package Parse_Args is
      new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => String);
    use type String_Doubly_Linked_Lists.List;
 
+   type Integer_Array is array (Integer range <>) of Integer;
+   Empty_Integer_Array : constant Integer_Array(1..0) := (1..0 => 0);
+
    type Argument_Parser is tagged limited private
      with Constant_Indexing => Constant_Reference,
      Default_Iterator => Iterate,
@@ -48,6 +51,8 @@ package Parse_Args is
    function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
    function Integer_Value(A : in Argument_Parser; Name : in String) return Integer;
    function String_Value(A : in Argument_Parser; Name : in String) return String;
+   function Integer_Array_Value(A : in Argument_Parser; Name : in String)
+                                return Integer_Array;
 
    function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List;
 
@@ -104,6 +109,7 @@ package Parse_Args is
    function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
    function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr;
    function Make_String_Option(Default : in String := "") return Option_Ptr;
+   function Make_Integer_Array_Option return Option_Ptr;
 
    procedure Allow_Tail_Arguments(A : in out Argument_Parser;
                                   Usage : in String := "ARGUMENTS";
@@ -125,6 +131,9 @@ package Parse_Args is
 
    type String_Option is limited interface;
    function Value(A : in String_Option) return String is abstract;
+
+   type Integer_Array_Option is limited interface;
+   function Value(A : in Integer_Array_Option) return Integer_Array is abstract;
 
 private
 

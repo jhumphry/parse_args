@@ -260,6 +260,19 @@ package body Parse_Args is
       end if;
    end String_Value;
 
+   -------------------------
+   -- Integer_Array_Value --
+   -------------------------
+
+   function Integer_Array_Value(A : Argument_Parser; Name : String) return Integer_Array is
+   begin
+      if A.Arguments.Contains(Name) and then A.Arguments(Name).all in Integer_Array_Option'Class then
+         return Integer_Array_Option'Class(A.Arguments(Name).all).Value;
+      else
+         raise Constraint_Error with "No suitable argument: " & Name & " with integer array result.";
+      end if;
+   end Integer_Array_Value;
+
    ----------
    -- Tail --
    ----------
@@ -434,6 +447,17 @@ package body Parse_Args is
                                          Default => Default_US
                                         );
    end Make_String_Option;
+
+   -------------------------------
+   -- Make_Integer_Array_Option --
+   -------------------------------
+
+   function Make_Integer_Array_Option return Option_Ptr is
+   begin
+      return new Concrete_Integer_Array_Option'(Set => False,
+                                                       Value => null
+                                                      );
+   end Make_Integer_Array_Option;
 
    --------------------------
    -- Allow_Tail_Arguments --

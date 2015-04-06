@@ -73,4 +73,13 @@ private package Parse_Args.Concrete is
    function Value(O : in Concrete_String_Option) return String is (To_String(O.Value));
    function Image(O : in Concrete_String_Option) return String renames Value;
 
+   type Concrete_Integer_Array_Option is new Option_With_Argument and Integer_Array_Option with record
+      Value : access Integer_Array;
+   end record;
+   procedure Set_Option_Argument(O : in out Concrete_Integer_Array_Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class);
+   function Value(O : in Concrete_Integer_Array_Option) return Integer_Array;
+   function Image(O : in Concrete_Integer_Array_Option) return String;
+
 end Parse_Args.Concrete;

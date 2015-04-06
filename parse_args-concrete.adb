@@ -17,6 +17,8 @@
 
 pragma Profile(No_Implementation_Extensions);
 
+with Ada.Strings.Fixed;
+
 package body Parse_Args.Concrete is
 
    ----------------
@@ -102,6 +104,65 @@ package body Parse_Args.Concrete is
       O.Set := True;
       O.Value := To_Unbounded_String(Arg);
    end Set_Option_Argument;
+
+   -------------------------
+   -- Set_Option_Argument --
+   -------------------------
+
+   procedure Set_Option_Argument(O : in out Concrete_Integer_Array_Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class) is
+      use Ada.Strings.Fixed;
+      U,V : Natural;
+   begin
+      O.Set := True;
+      O.Value := new Integer_Array(1..(Count(Arg, ",") + 1));
+      U := Arg'First;
+      for I in O.Value.all'Range loop
+         V := Index (Source => Arg,
+                     Pattern => ",",
+                     From => U);
+         V := (if V = 0 then Arg'Last+1 else V);
+         begin
+            O.Value.all(I) := Integer'Value(Arg(U..(V-1)));
+         exception
+            when Constraint_Error =>
+               A.State := Finish_Erroneous;
+               A.Message := To_Unbounded_String("Not a valid integer: " & Arg(U..(V-1)));
+               exit;
+         end;
+         U := V + 1;
+      end loop;
+
+   end Set_Option_Argument;
+
+   -----------
+   -- Value --
+   -----------
+
+   function Value(O : in Concrete_Integer_Array_Option) return Integer_Array is
+   begin
+      if O.Value = null then
+         return Empty_Integer_Array;
+      else
+         return O.Value.all;
+      end if;
+   end Value;
+
+   -----------
+   -- Image --
+   -----------
+
+   function Image(O : in Concrete_Integer_Array_Option) return String is
+   begin
+      if O.Value = null then
+         return "<Empty integer array>";
+      else
+         return "<Integer array of length: " &
+           Integer'Image(O.Value.all'Length) &
+           ">";
+      end if;
+   end Image;
 
 
 end Parse_Args.Concrete;

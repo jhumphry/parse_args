@@ -38,6 +38,7 @@ begin
    AP.Add_Option(Make_Natural_Option(0), "natural", 'n', Usage => "Specify a natural number argument");
    AP.Add_Option(Make_Integer_Option(-1), "integer", 'i', Usage => "Specify an integer argument");
    AP.Add_Option(Make_String_Option(""), "string", 's', Usage => "Specify a string argument");
+   AP.Add_Option(Make_Integer_Array_Option, "array", 'a', Usage => "Specify a comma-separated integer array argument");
    AP.Append_Positional(Make_String_Option("INFILE"), "INFILE");
    AP.Allow_Tail_Arguments("TAIL-ARGUMENTS");
    AP.Set_Prologue("A simple demonstration of the Parse_Args library.");
