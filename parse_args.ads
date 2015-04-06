@@ -196,21 +196,24 @@ private
                                   Finish_Success,
                                   Finish_Erroneous);
 
-   type Argument_Parser is tagged limited record
-      State : Argument_Parser_State := Init;
-      Last_Option : access Option'Class := null;
-      Arguments : Option_Maps.Map := Option_Maps.Empty_Map;
-      Long_Options : Option_Maps.Map := Option_Maps.Empty_Map;
-      Short_Options : Option_Char_Maps.Map := Option_Char_Maps.Empty_Map;
-      Current_Positional : Positional_Lists.Cursor := Positional_Lists.No_Element;
-      Positional : Positional_Lists.List := Positional_Lists.Empty_List;
-      Allow_Tail : Boolean := False;
-      Tail_Usage : Unbounded_String := Null_Unbounded_String;
-      Tail : String_Doubly_Linked_Lists.List := String_Doubly_Linked_Lists.Empty_List;
-      Message : Unbounded_String := Null_Unbounded_String;
-      Prologue : Unbounded_String := Null_Unbounded_String;
-      Option_Help_Details : Option_Help_Lists.List := Option_Help_Lists.Empty_List;
-   end record;
+   type Argument_Parser is new Ada.Finalization.Limited_Controlled with
+      record
+         State : Argument_Parser_State := Init;
+         Last_Option : access Option'Class := null;
+         Arguments : Option_Maps.Map := Option_Maps.Empty_Map;
+         Long_Options : Option_Maps.Map := Option_Maps.Empty_Map;
+         Short_Options : Option_Char_Maps.Map := Option_Char_Maps.Empty_Map;
+         Current_Positional : Positional_Lists.Cursor := Positional_Lists.No_Element;
+         Positional : Positional_Lists.List := Positional_Lists.Empty_List;
+         Allow_Tail : Boolean := False;
+         Tail_Usage : Unbounded_String := Null_Unbounded_String;
+         Tail : String_Doubly_Linked_Lists.List := String_Doubly_Linked_Lists.Empty_List;
+         Message : Unbounded_String := Null_Unbounded_String;
+         Prologue : Unbounded_String := Null_Unbounded_String;
+         Option_Help_Details : Option_Help_Lists.List := Option_Help_Lists.Empty_List;
+      end record;
+
+   overriding procedure Finalize(Object : in out Argument_Parser);
 
    type Option_Constant_Ref(Element : not null access Option'Class) is null record;
 

@@ -489,6 +489,36 @@ package body Parse_Args is
       A.Prologue := To_Unbounded_String(Prologue);
    end Set_Prologue;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   overriding procedure Finalize(Object : in out Argument_Parser) is
+   begin
+      Object.State := Finish_Erroneous;
+
+      for O of Object.Arguments loop
+         Finalize(O.all); -- all option arguments are Limited_Controlled
+      end loop;
+
+      Object.Arguments := Option_Maps.Empty_Map;
+      Object.Long_Options := Option_Maps.Empty_Map;
+      Object.Short_Options := Option_Char_Maps.Empty_Map;
+      Object.Positional := Positional_Lists.Empty_List;
+      Object.Tail_Usage := Null_Unbounded_String;
+      Object.Tail := String_Doubly_Linked_Lists.Empty_List;
+      Object.Message := Null_Unbounded_String;
+      Object.Prologue := Null_Unbounded_String;
+
+      for O of Object.Option_Help_Details loop
+         O.Name := Null_Unbounded_String;
+         O.Long_Option := Null_Unbounded_String;
+         O.Usage := Null_Unbounded_String;
+      end loop;
+
+      Object.Option_Help_Details := Option_Help_Lists.Empty_List;
+   end Finalize;
+
    -----------
    -- First --
    -----------
