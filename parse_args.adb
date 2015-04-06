@@ -497,18 +497,21 @@ package body Parse_Args is
    begin
       Object.State := Finish_Erroneous;
 
+      -- All of the various collections and unbounded strings within Object
+      -- should themselves be controlled types and per AARM 7.6.1 9/3 they
+      -- will be automatically finalized after this procedure is run. The
+      -- requirements for containers in (for example) AARM A.18.3 158/2 suggests
+      -- that no storage should be lost on scope exit, which suggests that the
+      -- storage allocated for the elements is being reclaimed. If the elements
+      -- of the containers are being deallocated with Unchecked_Deallocation
+      -- then 7.6.1 10 suggests that the Finalize procedures of the elements
+      -- will be called. However, for safety, I am manually forcing the
+      -- finalization of all of the Option'Class objects created during
+      -- the lifetime of the Argument_Parser object, just for safety.
+
       for O of Object.Arguments loop
          Finalize(O.all); -- all option arguments are Limited_Controlled
       end loop;
-
-      Object.Arguments := Option_Maps.Empty_Map;
-      Object.Long_Options := Option_Maps.Empty_Map;
-      Object.Short_Options := Option_Char_Maps.Empty_Map;
-      Object.Positional := Positional_Lists.Empty_List;
-      Object.Tail_Usage := Null_Unbounded_String;
-      Object.Tail := String_Doubly_Linked_Lists.Empty_List;
-      Object.Message := Null_Unbounded_String;
-      Object.Prologue := Null_Unbounded_String;
 
       for O of Object.Option_Help_Details loop
          O.Name := Null_Unbounded_String;
@@ -516,7 +519,6 @@ package body Parse_Args is
          O.Usage := Null_Unbounded_String;
       end loop;
 
-      Object.Option_Help_Details := Option_Help_Lists.Empty_List;
    end Finalize;
 
    -----------
