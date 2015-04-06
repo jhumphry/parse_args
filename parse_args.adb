@@ -22,6 +22,8 @@ use Parse_Args.Concrete;
 
 package body Parse_Args is
 
+   use Ada.Finalization;
+
    ------------------------
    -- Parse_Command_Line --
    ------------------------
@@ -400,7 +402,8 @@ package body Parse_Args is
    -------------------------
 
    function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr is
-     (new Concrete_Boolean_Option'(Set => False,
+     (new Concrete_Boolean_Option'(Limited_Controlled with
+                                   Set => False,
                                    Value => Default,
                                    Default => Default
                                   ));
@@ -409,7 +412,8 @@ package body Parse_Args is
    -------------------------
 
    function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
-     (new Concrete_Natural_Option'(Set => False,
+     (new Concrete_Natural_Option'(Limited_Controlled with
+                                   Set => False,
                                    Value => Default,
                                    Default => Default
                                   ));
@@ -419,7 +423,8 @@ package body Parse_Args is
    --------------------------
 
    function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr is
-     (new Repeated_Option'(Set => False,
+     (new Repeated_Option'(Limited_Controlled with
+                           Set => False,
                            Value => Default,
                            Default => Default
                           ));
@@ -429,7 +434,8 @@ package body Parse_Args is
    -------------------------
 
    function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr is
-     (new Concrete_Integer_Option'(Set => False,
+     (new Concrete_Integer_Option'(Limited_Controlled with
+                                   Set => False,
                                    Value => Default,
                                    Default => Default
                                   ));
@@ -442,7 +448,8 @@ package body Parse_Args is
    is
       Default_US : Unbounded_String := To_Unbounded_String(Default);
    begin
-      return new Concrete_String_Option'(Set => False,
+      return new Concrete_String_Option'(Limited_Controlled with
+                                           Set => False,
                                          Value => Default_US,
                                          Default => Default_US
                                         );
@@ -454,9 +461,10 @@ package body Parse_Args is
 
    function Make_Integer_Array_Option return Option_Ptr is
    begin
-      return new Concrete_Integer_Array_Option'(Set => False,
-                                                       Value => null
-                                                      );
+      return new Concrete_Integer_Array_Option'(Limited_Controlled with
+                                                  Set => False,
+                                                Value => null
+                                               );
    end Make_Integer_Array_Option;
 
    --------------------------

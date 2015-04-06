@@ -18,6 +18,7 @@
 pragma Profile(No_Implementation_Extensions);
 
 with Ada.Strings.Fixed;
+with Ada.Unchecked_Deallocation;
 
 package body Parse_Args.Concrete is
 
@@ -105,6 +106,16 @@ package body Parse_Args.Concrete is
       O.Value := To_Unbounded_String(Arg);
    end Set_Option_Argument;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize(Object : in out Concrete_String_Option) is
+   begin
+      Object.Value := Ada.Strings.Unbounded.Null_Unbounded_String;
+      Object.Default := Ada.Strings.Unbounded.Null_Unbounded_String;
+   end Finalize;
+
    -------------------------
    -- Set_Option_Argument --
    -------------------------
@@ -164,5 +175,16 @@ package body Parse_Args.Concrete is
       end if;
    end Image;
 
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Free_Integer_Array is new Ada.Unchecked_Deallocation(Object => Integer_Array,
+                                                              Name => Integer_Array_Access);
+
+   procedure Finalize(Object : in out Concrete_Integer_Array_Option) is
+   begin
+      Free_Integer_Array(Object.Value);
+   end Finalize;
 
 end Parse_Args.Concrete;

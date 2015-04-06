@@ -18,6 +18,7 @@
 pragma Profile(No_Implementation_Extensions);
 
 with Ada.Command_Line;
+with Ada.Finalization;
 with Ada.Iterator_Interfaces;
 with Ada.Containers.Indefinite_Doubly_Linked_Lists;
 
@@ -56,9 +57,10 @@ package Parse_Args is
 
    function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List;
 
-   type Option is abstract tagged limited record
-      Set : Boolean := False;
-   end record;
+   type Option is abstract new Ada.Finalization.Limited_Controlled with
+      record
+         Set : Boolean := False;
+      end record;
 
    procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is abstract;
    procedure Set_Option_Argument(O : in out Option;
