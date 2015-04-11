@@ -224,19 +224,6 @@ package body Parse_Args is
    end Boolean_Value;
 
    -------------------
-   -- Natural_Value --
-   -------------------
-
-   function Natural_Value(A : Argument_Parser; Name : String) return Natural is
-   begin
-      if A.Arguments.Contains(Name) and then A.Arguments(Name).all in Natural_Option'Class then
-         return Natural_Option'Class(A.Arguments(Name).all).Value;
-      else
-         raise Constraint_Error with "No suitable argument: " & Name & " with natural number result.";
-      end if;
-   end Natural_Value;
-
-   -------------------
    -- Integer_Value --
    -------------------
 
@@ -407,16 +394,6 @@ package body Parse_Args is
                                    Value => Default,
                                    Default => Default
                                   ));
-   -------------------------
-   -- Make_Natural_Option --
-   -------------------------
-
-   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
-     (new Concrete_Natural_Option'(Limited_Controlled with
-                                   Set => False,
-                                   Value => Default,
-                                   Default => Default
-                                  ));
 
    --------------------------
    -- Make_Repeated_Option --
@@ -426,18 +403,25 @@ package body Parse_Args is
      (new Repeated_Option'(Limited_Controlled with
                            Set => False,
                            Value => Default,
-                           Default => Default
+                           Default => Default,
+                           Min => 0,
+                           Max => Integer'Last
                           ));
 
    -------------------------
    -- Make_Integer_Option --
    -------------------------
 
-   function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr is
+   function Make_Integer_Option(Default : in Integer := 0;
+                                Min : in Integer := Integer'First;
+                                Max : in Integer := Integer'Last
+                               ) return Option_Ptr is
      (new Concrete_Integer_Option'(Limited_Controlled with
                                    Set => False,
                                    Value => Default,
-                                   Default => Default
+                                   Default => Default,
+                                   Min => Min,
+                                   Max => Max
                                   ));
 
    ------------------------

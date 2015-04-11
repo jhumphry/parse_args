@@ -66,28 +66,18 @@ package body Parse_Args.Concrete is
    -- Set_Option_Argument --
    -------------------------
 
-   procedure Set_Option_Argument(O : in out Concrete_Natural_Option;
-                                 Arg : in String;
-                                 A : in out Argument_Parser'Class) is
-   begin
-      O.Set := True;
-      O.Value := Natural'Value(Arg);
-   exception
-      when Constraint_Error =>
-         A.State := Finish_Erroneous;
-         A.Message := To_Unbounded_String("Not a valid natural number: " & Arg);
-   end Set_Option_Argument;
-
-   -------------------------
-   -- Set_Option_Argument --
-   -------------------------
-
    procedure Set_Option_Argument(O : in out Concrete_Integer_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class) is
    begin
       O.Set := True;
       O.Value := Integer'Value(Arg);
+      if O.Value < O.Min or O.Value > O.Max then
+         A.State := Finish_Erroneous;
+         A.Message := To_Unbounded_String(Arg & " should be between " &
+                                            Integer'Image(O.Min) & " and " &
+                                            Integer'Image(O.Max));
+      end if;
    exception
       when Constraint_Error =>
          A.State := Finish_Erroneous;

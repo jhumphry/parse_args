@@ -39,28 +39,21 @@ private package Parse_Args.Concrete is
    function Value(O : in Concrete_Boolean_Option) return Boolean is (O.Value);
 
 
-   type Concrete_Natural_Option is new Option_With_Argument and Natural_Option with record
-      Value : Natural := 0;
-      Default : Natural := 0;
-   end record;
-   procedure Set_Option_Argument(O : in out Concrete_Natural_Option;
-                                 Arg : in String;
-                                 A : in out Argument_Parser'Class);
-   function Image(O : in  Concrete_Natural_Option) return String is (Natural'Image(O.Value));
-   function Value(O : in Concrete_Natural_Option) return Natural is (O.Value);
-
-   type Repeated_Option is new Concrete_Natural_Option with null record;
-   procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
-
    type Concrete_Integer_Option is new Option_With_Argument and Integer_Option with record
       Value : Integer := 0;
       Default : Integer := 0;
+      Min : Integer := Integer'First;
+      Max : Integer := Integer'Last;
    end record;
    procedure Set_Option_Argument(O : in out Concrete_Integer_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class);
    function Image(O : in  Concrete_Integer_Option) return String is (Integer'Image(O.Value));
    function Value(O : in Concrete_Integer_Option) return Integer is (O.Value);
+
+
+   type Repeated_Option is new Concrete_Integer_Option with null record;
+   procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
 
 
    type Concrete_String_Option is new Option_With_Argument and String_Option with record

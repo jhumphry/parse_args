@@ -49,7 +49,6 @@ package Parse_Args is
    procedure Usage(A : in Argument_Parser);
 
    function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
-   function Natural_Value(A : in Argument_Parser; Name : in String) return Natural;
    function Integer_Value(A : in Argument_Parser; Name : in String) return Integer;
    function String_Value(A : in Argument_Parser; Name : in String) return String;
    function Integer_Array_Value(A : in Argument_Parser; Name : in String)
@@ -107,9 +106,15 @@ package Parse_Args is
                               );
 
    function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
-   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr;
    function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
-   function Make_Integer_Option(Default : in Integer := 0) return Option_Ptr;
+   function Make_Integer_Option(Default : in Integer := 0;
+                                Min : in Integer := Integer'First;
+                                Max : in Integer := Integer'Last
+                               ) return Option_Ptr;
+   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
+     (Make_Integer_Option(Default => Default, Min => 0, Max => Integer'Last));
+   function Make_Positive_Option(Default : in Natural := 0) return Option_Ptr is
+     (Make_Integer_Option(Default => Default, Min => 1, Max => Integer'Last));
    function Make_String_Option(Default : in String := "") return Option_Ptr;
    function Make_Integer_Array_Option return Option_Ptr;
 
@@ -124,9 +129,6 @@ package Parse_Args is
 
    type Boolean_Option is limited interface;
    function Value(A : in Boolean_Option) return Boolean is abstract;
-
-   type Natural_Option is limited interface;
-   function Value(A : in Natural_Option) return Natural is abstract;
 
    type Integer_Option is limited interface;
    function Value(A : in Integer_Option) return Integer is abstract;
