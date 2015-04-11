@@ -29,11 +29,26 @@ procedure Generic_Example is
    package Compass_Option is new Generic_Discrete_Option(Element => Compass,
                                                          Fallback_Default => North);
 
+
+
+   procedure Is_Even(Arg : in Integer; Result : in out Boolean) is
+   begin
+      Result := (if (Arg mod 2) = 0 then true else false);
+   end Is_Even;
+
+   package Even_Option is new Generic_Discrete_Option(Element => Natural,
+                                                      Fallback_Default => 0,
+                                                      Valid => Is_Even);
+
    C : aliased Compass_Option.Element_Option := Compass_Option.Make_Option;
+   E : aliased Even_Option.Element_Option := Even_Option.Make_Option;
 
 begin
    AP.Add_Option(Make_Boolean_Option(False), "help", 'h', Usage => "Display this help text");
-   AP.Add_Option(C'Unchecked_Access, "compass", 'c', Usage => "A compass point (North, South, East or West)");
+   AP.Add_Option(C'Unchecked_Access, "compass", 'c',
+                 Usage => "A compass point (North (default), South, East or West)");
+   AP.Add_Option(E'Unchecked_Access, "even", 'e',
+                 Usage => "An even natural number (default 0)");
    AP.Set_Prologue("A demonstration of the Parse_Args library with generic types.");
 
    AP.Parse_Command_Line;
@@ -42,6 +57,7 @@ begin
       AP.Usage;
    elsif AP.Parse_Success then
       Put_Line("Compass point specified: " & Compass'Image(Compass_Option.Value(AP, "compass")));
+      Put_Line("Even number specified: " & Natural'Image(Even_Option.Value(AP, "even")));
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
    end if;
