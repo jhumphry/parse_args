@@ -3,10 +3,16 @@ with "parse_args.gpr";
 project Parse_Args_Example is
 
    for Source_Dirs use ("./");
-   for Source_Files use ("simple_example.adb");
+   for Source_Files use (
+                         "simple_example.adb",
+                         "generic_example.adb"
+                        );
    for Object_Dir use "build/";
    for Exec_Dir use "exec/";
-   for Main use ("simple_example.adb");
+   for Main use (
+                 "simple_example.adb",
+                 "generic_example.adb"
+                );
 
    package Ide is
       for Vcs_Kind use "Git";

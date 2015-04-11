@@ -67,7 +67,7 @@ package Parse_Args is
                                  A : in out Argument_Parser'Class) is null;
    function Image(O : in Option) return String is abstract;
 
-   type Option_Ptr is not null access Option'Class;
+   type Option_Ptr is not null access all Option'Class;
 
    -- The following definitions are to support the indexing, dereferencing and
    -- iteration over the Argument_Parser type
