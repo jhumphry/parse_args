@@ -1,0 +1,49 @@
+with "parse_args_ext";
+
+project PA_Examples is
+
+   type Mode_Type is ("debug", "memdebug", "optimize");
+   Mode : Mode_Type := external ("mode", "debug");
+
+   for Source_Dirs use ("./examples/");
+
+   for Object_Dir use "build/";
+   for Exec_Dir use "exec/";
+   for Main use (
+                 "simple_example.adb",
+                 "generic_example.adb"
+                );
+
+   package Ide is
+      for Vcs_Kind use "Git";
+      for Documentation_Dir use "doc/";
+   end Ide;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-j2");
+   end Builder;
+
+   package Compiler is
+      case Mode is
+         when "debug" =>
+               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g");
+         when "memdebug" =>
+               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g");
+         when "optimize" =>
+               for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn");
+      end case;
+   end Compiler;
+
+   package Linker is
+      case Mode is
+         when "debug" =>
+               for Default_Switches ("ada") use ();
+         when "memdebug" =>
+               for Default_Switches ("ada") use ("-lgmem");
+         when "optimize" =>
+               for Default_Switches ("ada") use ();
+      end case;
+   end Linker;
+
+end PA_Examples;
+

@@ -2,6 +2,9 @@ library project Parse_Args is
 
    Version := "0.1.0";
 
+   type Mode_Type is ("debug", "memdebug", "optimize");
+   Mode : Mode_Type := external ("mode", "debug");
+
    for Library_Name use "parse_args";
    for Library_Kind use "dynamic";
    for Library_Version use "libparse_args.so." & Version;
@@ -25,9 +28,18 @@ library project Parse_Args is
 
    package Compiler is
       for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-O", "-fPIC");
+      case Mode is
+         when "debug" =>
+               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g", "-fPIC");
+         when "memdebug" =>
+               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g", "-fPIC");
+         when "optimize" =>
+               for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn", "-fPIC");
+      end case;
    end Compiler;
 
    package Linker is
+
    end Linker;
 
 end Parse_Args;

@@ -1,0 +1,20 @@
+-- This project file does not recompile the sources
+
+library project Parse_Args_Ext is
+
+   Version := "0.1.0";
+
+   for Library_Name use "parse_args";
+   for Library_Kind use "dynamic";
+   for Library_Version use "libparse_args.so." & Version;
+   for Library_Standalone use "standard";
+   for Library_Interface use ("Parse_Args");
+
+   for Source_Dirs use ("./");
+   for Excluded_Source_Dirs use ("examples");
+   for Library_Dir use "lib/";
+
+   for Externally_Built use "true";
+
+end Parse_Args_Ext;
+
