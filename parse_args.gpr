@@ -6,7 +6,7 @@ library project Parse_Args is
    Mode : Mode_Type := external ("mode", "debug");
 
    type Lib_Type is ("static", "dynamic");
-   LT : Lib_Type := external ("lib_type", "dynamic");
+   LT : Lib_Type := external ("lib_type", "static");
 
    Additional_Ada_Flags := ();
 
