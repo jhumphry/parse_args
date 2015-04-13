@@ -15,7 +15,7 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
-package body Parse_Args.Generic_Discrete_Option is
+package body Parse_Args.Generic_Discrete_Options is
 
    use Ada.Finalization;
 
@@ -102,4 +102,4 @@ package body Parse_Args.Generic_Discrete_Option is
                           Default => Default
                          ));
 
-end Parse_Args.Generic_Discrete_Option;
+end Parse_Args.Generic_Discrete_Options;

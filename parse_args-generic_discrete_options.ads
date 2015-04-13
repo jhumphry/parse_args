@@ -21,7 +21,7 @@ generic
    with function Value (S : String) return Element'Base is Element'Value;
    with function Image (Arg : Element'Base) return String is Element'Image;
    with procedure Valid (Arg : in Element; Result : in out Boolean) is null;
-package Parse_Args.Generic_Discrete_Option is
+package Parse_Args.Generic_Discrete_Options is
 
    type Element_Option is new Option with private;
    procedure Set_Option
@@ -49,4 +49,4 @@ private
    function Image (O : in Element_Option) return String is (Image (O.Value));
    function Value (O : in Element_Option) return Element is (O.Value);
 
-end Parse_Args.Generic_Discrete_Option;
+end Parse_Args.Generic_Discrete_Options;

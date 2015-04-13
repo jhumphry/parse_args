@@ -15,7 +15,7 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
-with Parse_Args, Parse_Args.Generic_Discrete_Option;
+with Parse_Args;
 use Parse_Args;
 
 with Ada.Text_IO;

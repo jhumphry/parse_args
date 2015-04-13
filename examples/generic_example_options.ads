@@ -17,18 +17,18 @@
 
 with Parse_Args;
 use Parse_Args;
-with Parse_Args.Generic_Discrete_Option;
+with Parse_Args.Generic_Discrete_Options;
 
 package Generic_Example_Options is
 
    type Compass is (North, South, East, West);
 
-   package Compass_Option is new Generic_Discrete_Option(Element => Compass,
+   package Compass_Option is new Generic_Discrete_Options(Element => Compass,
                                                          Fallback_Default => North);
 
    procedure Is_Even(Arg : in Integer; Result : in out Boolean);
 
-   package Even_Option is new Generic_Discrete_Option(Element => Natural,
+   package Even_Option is new Generic_Discrete_Options(Element => Natural,
                                                       Fallback_Default => 0,
                                                       Valid => Is_Even);
 
