@@ -1,4 +1,4 @@
-with "parse_args_ext";
+with "parse_args_static";
 
 project PA_Examples is
 
@@ -25,9 +25,7 @@ project PA_Examples is
 
    package Compiler is
       case Mode is
-         when "debug" =>
-               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g");
-         when "memdebug" =>
+         when "debug"|"memdebug" =>
                for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g");
          when "optimize" =>
                for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn");

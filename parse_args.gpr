@@ -5,17 +5,39 @@ library project Parse_Args is
    type Mode_Type is ("debug", "memdebug", "optimize");
    Mode : Mode_Type := external ("mode", "debug");
 
+   type Lib_Type is ("static", "dynamic");
+   LT : Lib_Type := external ("lib_type", "dynamic");
+
+   Additional_Ada_Flags := ();
+
    for Library_Name use "parse_args";
-   for Library_Kind use "dynamic";
-   for Library_Version use "libparse_args.so." & Version;
-   for Library_Standalone use "standard";
-   for Library_Interface use ("Parse_Args");
+   for Library_Kind use LT;
+
+   case LT is
+      when "dynamic" =>
+         Additional_Ada_Flags := ("-fPIC");
+         for Library_Standalone use "standard";
+         for Library_Version use "libparse_args.so." & Version;
+         for Library_Interface use ("Parse_Args",
+                                    "Parse_Args.Generic_Options",
+                                    "Parse_Args.Generic_Discrete_Options",
+                                    "Parse_Args.Generic_Indefinite_Options",
+                                    "Parse_Args.Split_CSV"
+                                    );
+      when "static" =>
+         for Library_Interface use ();
+   end case;
 
    for Source_Dirs use ("./");
    for Excluded_Source_Dirs use ("examples");
-   for Object_Dir use "build/";
-   for Library_Dir use "lib/";
-   for Exec_Dir use "exec/";
+   case LT is
+      when "dynamic" =>
+         for Object_Dir use "build/";
+         for Library_Dir use "lib/";
+      when "static" =>
+         for Object_Dir use "build_static/";
+         for Library_Dir use "lib_static/";
+   end case;
 
    package Ide is
       for Vcs_Kind use "Git";
@@ -27,20 +49,13 @@ library project Parse_Args is
    end Builder;
 
    package Compiler is
-      for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-O", "-fPIC");
       case Mode is
-         when "debug" =>
-               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g", "-fPIC");
-         when "memdebug" =>
-               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g", "-fPIC");
+         when "debug" | "memdebug" =>
+               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g") & Additional_Ada_Flags;
          when "optimize" =>
-               for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn", "-fPIC");
+               for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn") & Additional_Ada_Flags;
       end case;
    end Compiler;
-
-   package Linker is
-
-   end Linker;
 
 end Parse_Args;
 

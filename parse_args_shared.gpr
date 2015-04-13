@@ -1,6 +1,6 @@
 -- This project file does not recompile the sources
 
-library project Parse_Args_Ext is
+library project Parse_Args_Shared is
 
    Version := "0.1.0";
 
@@ -8,7 +8,11 @@ library project Parse_Args_Ext is
    for Library_Kind use "dynamic";
    for Library_Version use "libparse_args.so." & Version;
    for Library_Standalone use "standard";
-   for Library_Interface use ("Parse_Args");
+   for Library_Interface use ("Parse_Args",
+                              "Parse_Args.Generic_Options",
+                              "Parse_Args.Generic_Discrete_Options",
+                              "Parse_Args.Generic_Indefinite_Options",
+                              "Parse_Args.Split_CSV");
 
    for Source_Dirs use ("./");
    for Excluded_Source_Dirs use ("examples");
@@ -16,5 +20,5 @@ library project Parse_Args_Ext is
 
    for Externally_Built use "true";
 
-end Parse_Args_Ext;
+end Parse_Args_Shared;
 
