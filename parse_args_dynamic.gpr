@@ -1,6 +1,6 @@
 -- This project file does not recompile the sources
 
-library project Parse_Args_Shared is
+library project Parse_Args_Dynamic is
 
    Version := "0.1.0";
 
@@ -20,5 +20,5 @@ library project Parse_Args_Shared is
 
    for Externally_Built use "true";
 
-end Parse_Args_Shared;
+end Parse_Args_Dynamic;
 
