@@ -15,37 +15,38 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
-with Parse_Args.Generic_Options;
-
 generic
-   type Element is (<>);
+   type Element is private;
    Fallback_Default : Element;
+   with function Value (S : String) return Element'Base;
+   with function Image (Arg : Element'Base) return String;
    with procedure Valid (Arg : in Element; Result : in out Boolean) is null;
-package Parse_Args.Generic_Discrete_Options is
+package Parse_Args.Generic_Options is
 
-   package Inner is new Parse_Args.Generic_Options(Element => Element,
-                                                   Fallback_Default => Fallback_Default,
-                                                   Value => Element'Value,
-                                                   Image => Element'Image,
-                                                   Valid => Valid);
-
-   subtype Element_Option is Inner.Element_Option;
+   type Element_Option is new Option with private;
    procedure Set_Option
      (O : in out Element_Option;
-      A : in out Argument_Parser'Class) renames Inner.Set_Option;
+      A : in out Argument_Parser'Class);
    procedure Set_Option_Argument
      (O   : in out Element_Option;
       Arg : in     String;
-      A   : in out Argument_Parser'Class) renames Inner.Set_Option_Argument;
-   function Image (O : in Element_Option) return String renames Inner.Image;
-   function Value (O : in Element_Option) return Element renames Inner.Value;
+      A   : in out Argument_Parser'Class);
+   function Image (O : in Element_Option) return String;
+   function Value (O : in Element_Option) return Element;
 
-   function Value(A : in Argument_Parser; Name : in String) return Element renames Inner.Value;
+   function Value(A : in Argument_Parser; Name : in String) return Element;
    function Make_Option(Default : in Element := Fallback_Default)
-                        return Element_Option renames Inner.Make_Option;
+                        return Element_Option;
    function Make_Option(Default : in Element := Fallback_Default)
-                        return Option_Ptr renames Inner.Make_Option;
+                        return Option_Ptr;
 
-end Parse_Args.Generic_Discrete_Options;
+private
 
+   type Element_Option is new Option with record
+      Value   : Element := Fallback_Default;
+      Default : Element := Fallback_Default;
+   end record;
+   function Image (O : in Element_Option) return String is (Image (O.Value));
+   function Value (O : in Element_Option) return Element is (O.Value);
 
+end Parse_Args.Generic_Options;

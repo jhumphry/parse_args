@@ -33,6 +33,8 @@ begin
                  Usage => "A compass point (North (default), South, East or West)");
    AP.Add_Option(Even_Option.Make_Option, "even", 'e',
                  Usage => "An even natural number (default 0)");
+   AP.Add_Option(Float_Option.Make_Option, "float", 'f',
+                 Usage => "A floating-point number (default 0.0)");
    AP.Set_Prologue("A demonstration of the Parse_Args library with generic types.");
 
    AP.Parse_Command_Line;
@@ -42,6 +44,7 @@ begin
    elsif AP.Parse_Success then
       Put_Line("Compass point specified: " & Compass'Image(Compass_Option.Value(AP, "compass")));
       Put_Line("Even number specified: " & Natural'Image(Even_Option.Value(AP, "even")));
+      Put_Line("Floating-point number specified: " & Float'Image(Float_Option.Value(AP, "float")));
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
    end if;

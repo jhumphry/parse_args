@@ -18,6 +18,7 @@
 with Parse_Args;
 use Parse_Args;
 with Parse_Args.Generic_Discrete_Options;
+with Parse_Args.Generic_Options;
 
 package Generic_Example_Options is
 
@@ -31,5 +32,10 @@ package Generic_Example_Options is
    package Even_Option is new Generic_Discrete_Options(Element => Natural,
                                                       Fallback_Default => 0,
                                                       Valid => Is_Even);
+
+   package Float_Option is new Generic_Options(Element => Float,
+                                               Fallback_Default => 0.0,
+                                               Value => Float'Value,
+                                               Image => Float'Image);
 
 end Generic_Example_Options;
