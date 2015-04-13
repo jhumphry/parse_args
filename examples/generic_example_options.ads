@@ -15,10 +15,15 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
+with Ada.Unchecked_Deallocation;
+
 with Parse_Args;
 use Parse_Args;
+
 with Parse_Args.Generic_Discrete_Options;
 with Parse_Args.Generic_Options;
+with Parse_args.Generic_Indefinite_Options;
+with Parse_Args.Split_CSV;
 
 package Generic_Example_Options is
 
@@ -37,5 +42,26 @@ package Generic_Example_Options is
                                                Fallback_Default => 0.0,
                                                Value => Float'Value,
                                                Image => Float'Image);
+
+   type Float_Array is array (Integer range <>) of Float;
+   type Float_Array_Access is access Float_Array;
+
+   procedure Free_Float_Array is
+     new Ada.Unchecked_Deallocation(Object => Float_Array,
+                                    Name => Float_Array_Access);
+
+   function Split_Float_Array is new Split_CSV(Element => Float,
+                                               Element_Array => Float_Array,
+                                               Element_Array_Access => Float_Array_Access,
+                                               Value => Float'Value);
+
+   function Float_Array_Image(Arg : Float_Array_Access) return String is
+      ("<Float array of length: " & Integer'Image(Arg.all'Length) & ">");
+
+   package Float_Array_Option is new Generic_Indefinite_Options(Element => Float_Array,
+                                                                Element_Access => Float_Array_Access,
+                                                                Value => Split_Float_Array,
+                                                                Image => Float_Array_Image,
+                                                                Free_Element => Free_Float_Array);
 
 end Generic_Example_Options;

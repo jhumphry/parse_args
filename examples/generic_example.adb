@@ -35,18 +35,31 @@ begin
                  Usage => "An even natural number (default 0)");
    AP.Add_Option(Float_Option.Make_Option, "float", 'f',
                  Usage => "A floating-point number (default 0.0)");
+   AP.Add_Option(Float_Array_Option.Make_Option, "float-array", 'g',
+                 Usage => "An array of floating-point numbers");
    AP.Set_Prologue("A demonstration of the Parse_Args library with generic types.");
 
    AP.Parse_Command_Line;
 
    if AP.Parse_Success and then AP.Boolean_Value("help") then
       AP.Usage;
+
    elsif AP.Parse_Success then
       Put_Line("Compass point specified: " & Compass'Image(Compass_Option.Value(AP, "compass")));
       Put_Line("Even number specified: " & Natural'Image(Even_Option.Value(AP, "even")));
       Put_Line("Floating-point number specified: " & Float'Image(Float_Option.Value(AP, "float")));
+      if Float_Array_Option.Value(AP, "float-array") /= null then
+         Put_Line("Floating-point number array: ");
+         for I of Float_Array_Option.Value(AP, "float-array").all loop
+            Put(Float'Image(I) & ", ");
+         end loop;
+      else
+         Put_Line("No floating-point array specified.");
+      end if;
+
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
+
    end if;
 
 end Generic_Example;
