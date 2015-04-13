@@ -1,5 +1,5 @@
 -- generic_example
--- Anexample of the use of parse_args with
+-- An example of the use of parse_args with generic option types
 
 -- Copyright (c) 2015, James Humphry
 --
@@ -21,33 +21,17 @@ use Parse_Args;
 with Ada.Text_IO;
 use Ada.Text_IO;
 
+with Generic_Example_Options;
+use Generic_Example_Options;
+
 procedure Generic_Example is
    AP : Argument_Parser;
 
-   type Compass is (North, South, East, West);
-
-   package Compass_Option is new Generic_Discrete_Option(Element => Compass,
-                                                         Fallback_Default => North);
-
-
-
-   procedure Is_Even(Arg : in Integer; Result : in out Boolean) is
-   begin
-      Result := (if (Arg mod 2) = 0 then true else false);
-   end Is_Even;
-
-   package Even_Option is new Generic_Discrete_Option(Element => Natural,
-                                                      Fallback_Default => 0,
-                                                      Valid => Is_Even);
-
-   C : aliased Compass_Option.Element_Option := Compass_Option.Make_Option;
-   E : aliased Even_Option.Element_Option := Even_Option.Make_Option;
-
 begin
    AP.Add_Option(Make_Boolean_Option(False), "help", 'h', Usage => "Display this help text");
-   AP.Add_Option(C'Unchecked_Access, "compass", 'c',
+   AP.Add_Option(Compass_Option.Make_Option, "compass", 'c',
                  Usage => "A compass point (North (default), South, East or West)");
-   AP.Add_Option(E'Unchecked_Access, "even", 'e',
+   AP.Add_Option(Even_Option.Make_Option, "even", 'e',
                  Usage => "An even natural number (default 0)");
    AP.Set_Prologue("A demonstration of the Parse_Args library with generic types.");
 

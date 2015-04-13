@@ -5,7 +5,9 @@ project Parse_Args_Example is
    for Source_Dirs use ("./");
    for Source_Files use (
                          "simple_example.adb",
-                         "generic_example.adb"
+                         "generic_example.adb",
+                         "generic_example_options.ads",
+                         "generic_example_options.adb"
                         );
    for Object_Dir use "build/";
    for Exec_Dir use "exec/";

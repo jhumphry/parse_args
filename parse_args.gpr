@@ -9,7 +9,7 @@ library project Parse_Args is
    for Library_Interface use ("Parse_Args");
 
    for Source_Dirs use ("./");
-   for Excluded_Source_Files use ("simple_example.adb", "generic_example.adb");
+   for Excluded_Source_Files use ("simple_example.adb", "generic_example.adb", "generic_example_options.ads", "generic_example_options.adb");
    for Object_Dir use "build/";
    for Library_Dir use "lib/";
    for Exec_Dir use "exec/";
