@@ -67,16 +67,4 @@ private package Parse_Args.Concrete is
    function Image(O : in Concrete_String_Option) return String renames Value;
    overriding procedure Finalize(Object : in out Concrete_String_Option);
 
-   type Integer_Array_Access is access Integer_Array;
-
-   type Concrete_Integer_Array_Option is new Option_With_Argument and Integer_Array_Option with record
-      Value : Integer_Array_Access;
-   end record;
-   procedure Set_Option_Argument(O : in out Concrete_Integer_Array_Option;
-                                 Arg : in String;
-                                 A : in out Argument_Parser'Class);
-   function Value(O : in Concrete_Integer_Array_Option) return Integer_Array;
-   function Image(O : in Concrete_Integer_Array_Option) return String;
-   overriding procedure Finalize(Object : in out Concrete_Integer_Array_Option);
-
 end Parse_Args.Concrete;

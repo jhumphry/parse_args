@@ -12,7 +12,9 @@ library project Parse_Args_Dynamic is
                               "Parse_Args.Generic_Options",
                               "Parse_Args.Generic_Discrete_Options",
                               "Parse_Args.Generic_Indefinite_Options",
-                              "Parse_Args.Split_CSV");
+                              "Parse_Args.Split_CSV",
+                              "Parse_Args.Integer_Array_Options"
+                              );
 
    for Source_Dirs use ("./");
    for Excluded_Source_Dirs use ("examples");
