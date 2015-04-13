@@ -1,6 +1,6 @@
-with "parse_args_ext";
+with "parse_args_dynamic";
 
-project PA_Examples is
+project Parse_Args_Examples is
 
    type Mode_Type is ("debug", "memdebug", "optimize");
    Mode : Mode_Type := external ("mode", "debug");
@@ -25,9 +25,7 @@ project PA_Examples is
 
    package Compiler is
       case Mode is
-         when "debug" =>
-               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g");
-         when "memdebug" =>
+         when "debug"|"memdebug" =>
                for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnato", "-g");
          when "optimize" =>
                for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn");
@@ -45,5 +43,5 @@ project PA_Examples is
       end case;
    end Linker;
 
-end PA_Examples;
+end Parse_Args_Examples;
 
