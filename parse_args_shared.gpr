@@ -1,6 +1,6 @@
 -- This project file does not recompile the sources
 
-library project Parse_Args_Dynamic is
+library project Parse_Args_Shared is
 
    Version := "0.1.0";
 
@@ -12,8 +12,7 @@ library project Parse_Args_Dynamic is
                               "Parse_Args.Generic_Options",
                               "Parse_Args.Generic_Discrete_Options",
                               "Parse_Args.Generic_Indefinite_Options",
-                              "Parse_Args.Split_CSV"
-                              );
+                              "Parse_Args.Split_CSV");
 
    for Source_Dirs use ("./");
    for Excluded_Source_Dirs use ("examples");
@@ -21,5 +20,5 @@ library project Parse_Args_Dynamic is
 
    for Externally_Built use "true";
 
-end Parse_Args_Dynamic;
+end Parse_Args_Shared;
 

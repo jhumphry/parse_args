@@ -1,4 +1,5 @@
-with "parse_args_dynamic";
+
+with "parse_args_static";
 
 project Parse_Args_Examples is
 
