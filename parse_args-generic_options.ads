@@ -36,8 +36,6 @@ package Parse_Args.Generic_Options is
 
    function Value(A : in Argument_Parser; Name : in String) return Element;
    function Make_Option(Default : in Element := Fallback_Default)
-                        return Element_Option;
-   function Make_Option(Default : in Element := Fallback_Default)
                         return Option_Ptr;
 
 private

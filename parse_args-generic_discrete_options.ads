@@ -42,8 +42,6 @@ package Parse_Args.Generic_Discrete_Options is
 
    function Value(A : in Argument_Parser; Name : in String) return Element renames Inner.Value;
    function Make_Option(Default : in Element := Fallback_Default)
-                        return Element_Option renames Inner.Make_Option;
-   function Make_Option(Default : in Element := Fallback_Default)
                         return Option_Ptr renames Inner.Make_Option;
 
 end Parse_Args.Generic_Discrete_Options;

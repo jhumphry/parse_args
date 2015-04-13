@@ -20,6 +20,8 @@ pragma Profile(No_Implementation_Extensions);
 with Parse_Args.Concrete;
 use Parse_Args.Concrete;
 
+with Ada.Unchecked_Deallocation;
+
 package body Parse_Args is
 
    use Ada.Finalization;
@@ -477,6 +479,9 @@ package body Parse_Args is
    -- Finalize --
    --------------
 
+   procedure Free_Option is new Ada.Unchecked_Deallocation(Object => Option'Class,
+                                                           Name => General_Option_Ptr);
+
    overriding procedure Finalize(Object : in out Argument_Parser) is
    begin
       Object.State := Finish_Erroneous;
@@ -486,15 +491,13 @@ package body Parse_Args is
       -- will be automatically finalized after this procedure is run. The
       -- requirements for containers in (for example) AARM A.18.3 158/2 suggests
       -- that no storage should be lost on scope exit, which suggests that the
-      -- storage allocated for the elements is being reclaimed. If the elements
-      -- of the containers are being deallocated with Unchecked_Deallocation
-      -- then 7.6.1 10 suggests that the Finalize procedures of the elements
-      -- will be called. However, for safety, I am manually forcing the
-      -- finalization of all of the Option'Class objects created during
-      -- the lifetime of the Argument_Parser object, just for safety.
+      -- storage allocated for the elements is being reclaimed.
+      --
+      -- As the elements are only access types, the actual options themselves
+      -- still need to be manually released.
 
       for O of Object.Arguments loop
-         Finalize(O.all); -- all option arguments are Limited_Controlled
+         Free_Option(General_Option_Ptr(O));
       end loop;
 
       for O of Object.Option_Help_Details loop

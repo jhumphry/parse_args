@@ -36,7 +36,6 @@ package Parse_Args.Generic_Indefinite_Options is
    function Value (O : in Element_Option) return Element_Access;
 
    function Value(A : in Argument_Parser; Name : in String) return Element_Access;
-   function Make_Option return Element_Option;
    function Make_Option return Option_Ptr;
 
 private
