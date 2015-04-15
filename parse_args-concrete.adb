@@ -1,7 +1,7 @@
 -- parse_args-concrete.adb
 -- A simple command line option parser
 
--- Copyright (c) 2014, James Humphry
+-- Copyright (c) 2014 - 2015, James Humphry
 --
 -- Permission to use, copy, modify, and/or distribute this software for any
 -- purpose with or without fee is hereby granted, provided that the above
