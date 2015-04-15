@@ -15,52 +15,31 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
-
-with Ada.Unchecked_Deallocation;
-
-with Parse_Args.Generic_Indefinite_Options;
-with Parse_Args.Split_CSV;
+with Parse_Args.Generic_Discrete_Array_Options;
 
 package Parse_Args.Integer_Array_Options is
 
    type Integer_Array is array (Integer range <>) of Integer;
    type Integer_Array_Access is access Integer_Array;
 
-   procedure Free_Integer_Array is new Ada.Unchecked_Deallocation(Object => Integer_Array,
-                                                                  Name => Integer_Array_Access);
+   package Inner is new Generic_Discrete_Array_Options(Element => Integer,
+                                                       Element_Array => Integer_Array,
+                                                       Element_Array_Access => Integer_Array_Access
+                                                      );
 
-   function Split_CSV_Integer_Array is new Split_CSV(Element => Integer,
-                                                     Element_Array => Integer_Array,
-                                                     Element_Array_Access => Integer_Array_Access,
-                                                     Value => Integer'Value);
-
-   function Integer_Array_Image(Arg : Integer_Array_Access) return String is
-     (
-      if Arg /= null then
-         "<Integer array of length: " & Integer'Image(Arg.all'Length) & ">"
-      else
-         "<Empty Integer array>"
-     );
-
-   package Inner is new Parse_Args.Generic_Indefinite_Options(Element => Integer_Array,
-                                                              Element_Access => Integer_Array_Access,
-                                                              Value => Split_CSV_Integer_Array,
-                                                              Image => Integer_Array_Image,
-                                                              Free_Element => Free_Integer_Array
-                                                             );
-
-   subtype Integer_Array_Option is Inner.Element_Option;
+   subtype Element_Array_Option is Inner.Element_Array_Option;
    procedure Set_Option
-     (O : in out Integer_Array_Option;
+     (O : in out Element_Array_Option;
       A : in out Argument_Parser'Class) renames Inner.Set_Option;
    procedure Set_Option_Argument
-     (O   : in out Integer_Array_Option;
+     (O   : in out Element_Array_Option;
       Arg : in     String;
       A   : in out Argument_Parser'Class) renames Inner.Set_Option_Argument;
-   function Image (O : in Integer_Array_Option) return String renames Inner.Image;
-   function Value (O : in Integer_Array_Option) return Integer_Array_Access renames Inner.Value;
+   function Image (O : in Element_Array_Option) return String renames Inner.Image;
+   function Value (O : in Element_Array_Option) return Integer_Array_Access renames Inner.Value;
 
    function Value(A : in Argument_Parser; Name : in String) return Integer_Array_Access renames Inner.Value;
    function Make_Option return Option_Ptr renames Inner.Make_Option;
 
 end Parse_Args.Integer_Array_Options;
+

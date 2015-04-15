@@ -23,6 +23,7 @@ library project Parse_Args is
                                     "Parse_Args.Generic_Discrete_Options",
                                     "Parse_Args.Generic_Indefinite_Options",
                                     "Parse_Args.Split_CSV",
+                                    "Parse_Args.Generic_Discrete_Array_Options",
                                     "Parse_Args.Integer_Array_Options"
                                     );
       when "static" =>
