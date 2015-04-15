@@ -15,6 +15,7 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
+pragma Profile(No_Implementation_Extensions);
 
 with Ada.Unchecked_Deallocation;
 

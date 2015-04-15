@@ -15,6 +15,8 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
+pragma Profile(No_Implementation_Extensions);
+
 with Ada.Strings.Fixed;
 
 function Parse_Args.Split_CSV (S : String) return Element_Array_Access is

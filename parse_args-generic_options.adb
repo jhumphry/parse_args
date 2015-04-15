@@ -15,6 +15,8 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
+pragma Profile(No_Implementation_Extensions);
+
 package body Parse_Args.Generic_Options is
 
    use Ada.Finalization;
