@@ -45,7 +45,8 @@ private
    type Element_Option is new Option with record
       Value   : Element_Access;
    end record;
-   procedure Finalize(Object : in out Element_Option);
+
+   overriding procedure Finalize(Object : in out Element_Option);
 
    function Image (O : in Element_Option) return String is (Image(O.Value));
    function Value (O : in Element_Option) return Element_Access is (O.Value);
