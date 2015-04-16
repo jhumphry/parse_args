@@ -30,19 +30,51 @@ private with Ada.Containers.Doubly_Linked_Lists;
 package Parse_Args is
 
    -- **
+   -- ** Option
+   -- **
+
+   type Option is abstract new Ada.Finalization.Limited_Controlled with private;
+   type General_Option_Ptr is access Option'Class;
+   subtype Option_Ptr is not null General_Option_Ptr;
+
+   function Set(O : in Option) return Boolean;
+   function Image(O : in Option) return String is abstract;
+
+   -- Factory functions for basic option types
+
+   function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
+   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
+   function Make_Integer_Option(Default : in Integer := 0;
+                                Min : in Integer := Integer'First;
+                                Max : in Integer := Integer'Last
+                               ) return Option_Ptr;
+   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
+     (Make_Integer_Option(Default => Default, Min => 0, Max => Integer'Last));
+   function Make_Positive_Option(Default : in Positive := 1) return Option_Ptr is
+     (Make_Integer_Option(Default => Default, Min => 1, Max => Integer'Last));
+   function Make_String_Option(Default : in String := "") return Option_Ptr;
+
+   -- Define interfaces to specify different possible return values
+
+   type Boolean_Option is limited interface;
+   function Value(A : in Boolean_Option) return Boolean is abstract;
+
+   type Integer_Option is limited interface;
+   function Value(A : in Integer_Option) return Integer is abstract;
+
+   type String_Option is limited interface;
+   function Value(A : in String_Option) return String is abstract;
+
+   -- **
    -- ** Argument_Parser
    -- **
 
-   type Argument_Parser is tagged limited private
+   type Argument_Parser is new Ada.Finalization.Limited_Controlled with private
      with Constant_Indexing => Constant_Reference,
      Default_Iterator => Iterate,
      Iterator_Element => Option;
 
    -- Initialising the Argument_Parser
-
-   type Option;
-   type General_Option_Ptr is access Option'Class;
-   subtype Option_Ptr is not null General_Option_Ptr;
 
    procedure Add_Option(A : in out Argument_Parser;
                         O : in Option_Ptr;
@@ -105,53 +137,29 @@ package Parse_Args is
      with Implicit_Dereference => Element;
 
    function Constant_Reference(C : aliased in Argument_Parser;
-                               Name : in String) return Option_Constant_Ref;
-   function Constant_Reference(C : aliased in Argument_Parser;
                                Position : in Cursor) return Option_Constant_Ref;
 
-   -- **
-   -- ** Option
-   -- **
+   function Constant_Reference(C : aliased in Argument_Parser;
+                               Name : in String) return Option_Constant_Ref;
+
+private
+
+   use Ada.Strings.Unbounded;
 
    type Option is abstract new Ada.Finalization.Limited_Controlled with
       record
          Set : Boolean := False;
       end record;
 
-   procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is abstract;
+   overriding procedure Finalize(Object : in out Option) is null;
+
+   procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is null;
    procedure Set_Option_Argument(O : in out Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class) is null;
-   function Image(O : in Option) return String is abstract;
 
-   -- Factory functions for basic option types
+   function Set(O : in Option) return Boolean is (O.Set);
 
-   function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
-   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
-   function Make_Integer_Option(Default : in Integer := 0;
-                                Min : in Integer := Integer'First;
-                                Max : in Integer := Integer'Last
-                               ) return Option_Ptr;
-   function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
-     (Make_Integer_Option(Default => Default, Min => 0, Max => Integer'Last));
-   function Make_Positive_Option(Default : in Positive := 1) return Option_Ptr is
-     (Make_Integer_Option(Default => Default, Min => 1, Max => Integer'Last));
-   function Make_String_Option(Default : in String := "") return Option_Ptr;
-
-   -- Define interfaces to specify different possible return values
-
-   type Boolean_Option is limited interface;
-   function Value(A : in Boolean_Option) return Boolean is abstract;
-
-   type Integer_Option is limited interface;
-   function Value(A : in Integer_Option) return Integer is abstract;
-
-   type String_Option is limited interface;
-   function Value(A : in String_Option) return String is abstract;
-
-private
-
-   use Ada.Strings.Unbounded;
 
    -- These functions shadow the standard library, but if they are used in a
    -- dispatching way they can be over-ridden in derived types, which is useful

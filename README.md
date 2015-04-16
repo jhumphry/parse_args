@@ -55,6 +55,61 @@ specified arguments can be retrieved, which is useful in the common
 case that a command can be given a unlimited number of files to operate
 over.
 
+### `Option` types
+
+The actual options/arguments themselves are in the form of objects
+derived from the base `Option` type. These objects are not intended to
+be instantiated directly. Instead factory functions will be provided to
+allocate new objects and return `Option_Ptr` values which are passed to
+the `Add_Option` or `Append_Positional` procedures of
+`Argument_Parser`.
+
+#### Operations of option types
+
+    function Set(O : in Option) return Boolean;
+
+This function indicates whether a particular option was set. If not, the
+value returned may be a default value.
+
+    function Image(O : in Option) return String is abstract;
+
+This returns a string giving the value of the option. This is the
+default representation of the converted value, so is not necessarily
+the same as the representation accepted from the user.
+
+#### Basic types of option in `Parse_Args`
+
+    function Make_Boolean_Option(Default : in Boolean := False)
+       return Option_Ptr;
+    function Make_Repeated_Option(Default : in Natural := 0)
+       return Option_Ptr;
+
+These factories return options that are intended to be specified
+without additional values. The Boolean type can only be specified once.
+If not specified the default value will be returned, and if specified
+the opposite will be returned. The Repeated type can be specified more
+than once and the return value is an integer giving the number of times
+it appeared on the command line.
+
+    function Make_Integer_Option(Default : in Integer := 0;
+                                 Min : in Integer := Integer'First;
+                                 Max : in Integer := Integer'Last
+                                ) return Option_Ptr;
+    function Make_Natural_Option(Default : in Natural := 0)
+       return Option_Ptr;
+    function Make_Positive_Option(Default : in Positive := 1)
+       return Option_Ptr;
+
+The Integer option type takes a default value to be returned if nothing
+is specified by the user, together with minimum and maximum valid
+values. The Natural and Positive factories are simply a convenience
+with the limits pre-set.
+
+    function Make_String_Option(Default : in String := "")
+       return Option_Ptr;
+
+This factory returns an option that holds a string.
+
 ### `Argument_Parser`
 
 The `Argument_Parser` type is responsible for holding references to and
@@ -162,61 +217,6 @@ This procedure will produce an explanation of the options and arguments
 accepted by the program. Typically this is invoked if a particular
 Boolean_Option (traditionally `-h` or `--help`)  was specified on the
 command line.
-
-### `Option` types
-
-The actual options/arguments themselves are in the form of objects
-derived from the base `Option` type. These objects are not intended to
-be instantiated directly. Instead factory functions will be provided to
-allocate new objects and return `Option_Ptr` values which are passed to
-the `Add_Option` or `Append_Positional` procedures of
-`Argument_Parser`.
-
-#### Basic types of option in `Parse_Args`
-
-    function Make_Boolean_Option(Default : in Boolean := False)
-       return Option_Ptr;
-    function Make_Repeated_Option(Default : in Natural := 0)
-       return Option_Ptr;
-
-These factories return options that are intended to be specified
-without additional values. The Boolean type can only be specified once.
-If not specified the default value will be returned, and if specified
-the opposite will be returned. The Repeated type can be specified more
-than once and the return value is an integer giving the number of times
-it appeared on the command line.
-
-    function Make_Integer_Option(Default : in Integer := 0;
-                                 Min : in Integer := Integer'First;
-                                 Max : in Integer := Integer'Last
-                                ) return Option_Ptr;
-    function Make_Natural_Option(Default : in Natural := 0)
-       return Option_Ptr;
-    function Make_Positive_Option(Default : in Positive := 1)
-       return Option_Ptr;
-
-The Integer option type takes a default value to be returned if nothing
-is specified by the user, together with minimum and maximum valid
-values. The Natural and Positive factories are simply a convenience
-with the limits pre-set.
-
-    function Make_String_Option(Default : in String := "")
-       return Option_Ptr;
-
-This factory returns an option that holds a string.
-
-#### Operations of option types
-
-    function Set(O : in Option) return Boolean;
-
-This function indicates whether a particular option was set. If not, the
-value returned may be a default value.
-
-    function Image(O : in Option) return String is abstract;
-
-This returns a string giving the value of the option. This is the
-default representation of the converted value, so is not necessarily
-the same as the representation accepted from the user.
 
 ## Defining new option types using the generic packages
 
