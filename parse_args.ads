@@ -29,41 +29,65 @@ private with Ada.Containers.Doubly_Linked_Lists;
 
 package Parse_Args is
 
-   package String_Doubly_Linked_Lists is
-     new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => String);
-   use type String_Doubly_Linked_Lists.List;
+   -- **
+   -- ** Argument_Parser
+   -- **
 
    type Argument_Parser is tagged limited private
      with Constant_Indexing => Constant_Reference,
      Default_Iterator => Iterate,
      Iterator_Element => Option;
 
+   -- Initialising the Argument_Parser
+
+   type Option;
+   type General_Option_Ptr is access Option'Class;
+   subtype Option_Ptr is not null General_Option_Ptr;
+
+   procedure Add_Option(A : in out Argument_Parser;
+                        O : in Option_Ptr;
+                        Name : in String;
+                        Short_Option : in Character := '-';
+                        Long_Option : in String := "";
+                        Usage : in String := "";
+                        Prepend_Usage : in Boolean := False
+                       );
+
+   procedure Append_Positional(A : in out Argument_Parser;
+                               O : in Option_Ptr;
+                               Name : in String
+                              );
+
+   procedure Allow_Tail_Arguments(A : in out Argument_Parser;
+                                  Usage : in String := "ARGUMENTS";
+                                  Allow : in Boolean := True);
+
+   procedure Set_Prologue(A: in out Argument_Parser;
+                          Prologue : in String);
+
+   -- Processing the command line
+
    procedure Parse_Command_Line(A : in out Argument_Parser);
+
+   -- Retrieving the results
+
    function Parse_Success(A : in Argument_Parser) return Boolean;
    function Parse_Message(A : in Argument_Parser) return String;
+
    function Command_Name(A : in Argument_Parser) return String is
      (Ada.Command_Line.Command_Name);
-   procedure Usage(A : in Argument_Parser);
 
    function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
    function Integer_Value(A : in Argument_Parser; Name : in String) return Integer;
    function String_Value(A : in Argument_Parser; Name : in String) return String;
 
+   package String_Doubly_Linked_Lists is
+     new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => String);
    function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List;
 
-   type Option is abstract new Ada.Finalization.Limited_Controlled with
-      record
-         Set : Boolean := False;
-      end record;
+   -- Convenience procedure for printing usage text
 
-   procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is abstract;
-   procedure Set_Option_Argument(O : in out Option;
-                                 Arg : in String;
-                                 A : in out Argument_Parser'Class) is null;
-   function Image(O : in Option) return String is abstract;
-
-   type General_Option_Ptr is access Option'Class;
-   subtype Option_Ptr is not null General_Option_Ptr;
+   procedure Usage(A : in Argument_Parser);
 
    -- The following definitions are to support the indexing, dereferencing and
    -- iteration over the Argument_Parser type
@@ -85,21 +109,22 @@ package Parse_Args is
    function Constant_Reference(C : aliased in Argument_Parser;
                                Position : in Cursor) return Option_Constant_Ref;
 
-   -- The following definitions actually add options to the parser.
+   -- **
+   -- ** Option
+   -- **
 
-   procedure Add_Option(A : in out Argument_Parser;
-                        O : in Option_Ptr;
-                        Name : in String;
-                        Short_Option : in Character := '-';
-                        Long_Option : in String := "";
-                        Usage : in String := "";
-                        Prepend_Usage : in Boolean := False
-                       );
+   type Option is abstract new Ada.Finalization.Limited_Controlled with
+      record
+         Set : Boolean := False;
+      end record;
 
-   procedure Append_Positional(A : in out Argument_Parser;
-                               O : in Option_Ptr;
-                               Name : in String
-                              );
+   procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is abstract;
+   procedure Set_Option_Argument(O : in out Option;
+                                 Arg : in String;
+                                 A : in out Argument_Parser'Class) is null;
+   function Image(O : in Option) return String is abstract;
+
+   -- Factory functions for basic option types
 
    function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr;
    function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr;
@@ -112,13 +137,6 @@ package Parse_Args is
    function Make_Positive_Option(Default : in Positive := 1) return Option_Ptr is
      (Make_Integer_Option(Default => Default, Min => 1, Max => Integer'Last));
    function Make_String_Option(Default : in String := "") return Option_Ptr;
-
-   procedure Allow_Tail_Arguments(A : in out Argument_Parser;
-                                  Usage : in String := "ARGUMENTS";
-                                  Allow : in Boolean := True);
-
-   procedure Set_Prologue(A: in out Argument_Parser;
-                          Prologue : in String);
 
    -- Define interfaces to specify different possible return values
 
