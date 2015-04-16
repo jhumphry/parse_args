@@ -205,6 +205,19 @@ with the limits pre-set.
 
 This factory returns an option that holds a string.
 
+#### Operations of option types
+
+    function Set(O : in Option) return Boolean;
+
+This function indicates whether a particular option was set. If not, the
+value returned may be a default value.
+
+    function Image(O : in Option) return String is abstract;
+
+This returns a string giving the value of the option. This is the
+default representation of the converted value, so is not necessarily
+the same as the representation accepted from the user.
+
 ## Defining new option types using the generic packages
 
 TBC...
