@@ -109,7 +109,7 @@ package Parse_Args is
                                ) return Option_Ptr;
    function Make_Natural_Option(Default : in Natural := 0) return Option_Ptr is
      (Make_Integer_Option(Default => Default, Min => 0, Max => Integer'Last));
-   function Make_Positive_Option(Default : in Natural := 0) return Option_Ptr is
+   function Make_Positive_Option(Default : in Positive := 1) return Option_Ptr is
      (Make_Integer_Option(Default => Default, Min => 1, Max => Integer'Last));
    function Make_String_Option(Default : in String := "") return Option_Ptr;
 
