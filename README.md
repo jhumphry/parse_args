@@ -17,24 +17,6 @@ not as ambitious. The aims are:
 3.  to use the new features in Ada 2005 and Ada 2012 to their best
     advantage.
 
-## Copyright
-
-The package is provided under the permissive ISC-style license:
-
-> Copyright (c) 2014, James Humphry
->
-> Permission to use, copy, modify, and/or distribute this software for any
-> purpose with or without fee is hereby granted, provided that the above
-> copyright notice and this permission notice appear in all copies.
->
-> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-> REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-> AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-> INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-> LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-> OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-> PERFORMANCE OF THIS SOFTWARE.
-
 ## Using the `Parse_Args` package
 
 The core of the package is the `Argument_Parser` type. An object of
@@ -154,9 +136,9 @@ set.
 Adding positional arguments is simpler. The `Name` parameter is used to
 retrieve the result, and to label the positional argument when
 producing the usage text. The `Argument_Parser` package supports the
-usage of `--` on the command line which means that all further arguments
-are considered against the positional arguments only. This is useful if
-the user wishes to specify an argument that happens to start with a `-`.
+use of `--` on the command line to mean that all further arguments are
+considered against the positional arguments only. This is useful if the
+user wishes to specify an argument that happens to start with a `-`.
 
     procedure Allow_Tail_Arguments(A : in out Argument_Parser;
                                    Usage : in String := "ARGUMENTS";
@@ -206,8 +188,8 @@ that name is not of the appropriate type.
        return String_Doubly_Linked_Lists.List;
 
 If tail arguments were enabled before processing the command line, this
-will return a Doubly_Linked_List from the standard Ada.Containers, each
-element of which is a string giving an unprocessed argument.
+will return a `Doubly_Linked_List` from the standard `Ada.Containers`,
+each element of which is a string giving an unprocessed argument.
 
 #### Printing usage text
 
@@ -215,12 +197,138 @@ element of which is a string giving an unprocessed argument.
 
 This procedure will produce an explanation of the options and arguments
 accepted by the program. Typically this is invoked if a particular
-Boolean_Option (traditionally `-h` or `--help`)  was specified on the
+`Boolean_Option` (traditionally `-h` or `--help`)  was specified on the
 command line.
 
 ## Defining new option types using the generic packages
 
-TBC...
+As well as the basic option types, new option types can be created using
+generic child packages of `Parse_Args`. One package supports definite
+types and the other indefinite types. There are also helper packages for
+the common cases where support for discrete types or indefinite arrays
+of discrete types is required.
+
+### `Generic_Options`
+
+    generic
+       type Element is private;
+       Fallback_Default : Element;
+       with function Value (S : String) return Element'Base;
+       with function Image (Arg : Element'Base) return String;
+       with procedure Valid (Arg : in Element; Result : in out Boolean)
+          is null;
+    package Parse_Args.Generic_Options
+
+This package supports definite types supplied as the `Element` type
+parameter. The `Fallback_Default` value is used as the default for
+options if a more specific value is not provided. The `Value` and
+`Image` functions are used to convert values to/from string
+representations.
+
+The `Valid` procedure should set the `Result` parameter based on
+whether the `Arg` parameter is a valid example of the `Element` type -
+this can be used to create options that have more stringent
+requirements than the underlying `Element` data type. This might be
+more practicable than creating many subtypes of `Element` with different
+`Dynamic_Predicate` aspects, or creating several versions of `Value`
+that only differ in validity checks. Alternatively, it can be left
+`null` if not required.
+
+When instantiated, the resulting package contains a new private type
+`Element_Option` which is part of `Option'Class` and has the usual
+primative operations.
+
+    function Value (O : in Element_Option) return Element;
+
+The `Value` function will extract return a value of the correct type, as
+expected.
+
+    function Value(A : in Argument_Parser; Name : in String)
+       return Element;
+    function Make_Option(Default : in Element := Fallback_Default)
+                         return Option_Ptr;
+
+These functions complement ther equivalents in `Parse_Args` for the new
+option type.
+
+### `Generic_Discrete_Options`
+
+    generic
+       type Element is (<>);
+       Fallback_Default : Element;
+       with procedure Valid (Arg : in Element; Result : in out Boolean)
+          is null;
+    package Parse_Args.Generic_Discrete_Options
+
+The `Generic_Discrete_Options` package wraps the `Generic_Options`
+package. As discrete types always have `'Image` and `'Value` attributes,
+these do not have to be supplied.
+
+### `Generic_Indefinite_Options`
+
+    generic
+       type Element(<>);
+       type Element_Access is access Element;
+       with function Value (S : String) return Element_Access;
+       with function Image (Arg : Element_Access) return String;
+       with procedure Free_Element(X : in out Element_Access) is null;
+       with procedure Valid (Arg : in Element_Access;
+                             Result : in out Boolean) is null;
+    package Parse_Args.Generic_Indefinite_Options
+
+The generic package for supporting options with indefinite types is very
+similar. The main difference is that rather than returning `Element`
+values, and access value will be returned. If you want to avoid memory
+leaks, it is also necessary to provide a `Free_Element` procedure (which
+will probably be an instance of `Ada.Unchecked_Deallocation`). There is
+also no `Fallback_Default` value - if no value is set on the command
+line a `null` pointer will be returned.
+
+
+    function Value (O : in Element_Option) return Element_Access;
+    function Value(A : in Argument_Parser; Name : in String)
+       return Element_Access;
+    function Make_Option return Option_Ptr;
+
+These functions operate like their definite counterparts, except for
+the use of access values rather than direct values. The memory
+allocated to hold values retrieved from the command line is consider to
+belong to the `Argument_Parser` object, and *when the parser is
+destroyed all storage associated with indefinite command line arguments
+will be deallocated*. If you wish to destroy the `Argument_Parser`
+object before the termination of the program, you must copy any
+indefinite values which are still required to new storage allocations.
+
+### `Generic_Discrete_Array_Options` and `Integer_Array_Options`
+
+    generic
+       type Element is (<>);
+       type Element_Array is array (Integer range <>) of Element;
+       type Element_Array_Access is access Element_Array;
+       with procedure Valid (Arg : in Element; Result : in out Boolean)
+          is null;
+    package Parse_Args.Generic_Discrete_Array_Options
+
+This package is a wrapper aroung `Generic_Discrete_Array_Options` that
+reduces the number of boilerplate declarations needed in the common
+case that the indefinite type is an array of discrete types, which
+will be provided on the command line as a single comma-separated list
+of values.
+
+    generic
+       type Element is private;
+       type Element_Array is array(Integer range <>) of Element;
+       type Element_Array_Access is access Element_Array;
+       with function Value (S : String) return Element'Base;
+    function Parse_Args.Split_CSV (S : String)
+       return Element_Array_Access;
+
+The code for creating arrays from comma-separated lists may be
+useful so has also be exposed as a generic unit.
+
+`Integer_Array_Options` is simply a demonstration of
+`Generic_Discrete_Array_Options` for the case of arrays of the built-in
+`Integer` type.
 
 ## Examples
 
@@ -231,3 +339,21 @@ of the inbuilt option types.
 types. The option types are defined in `generic_example_options.ads`,
 showing both discrete, floating-point and indefinite (array) option
 types.
+
+## Copyright license
+
+The package is provided under the ISC license:
+
+> Copyright (c) 2014 -2015, James Humphry
+>
+> Permission to use, copy, modify, and/or distribute this software for any
+> purpose with or without fee is hereby granted, provided that the above
+> copyright notice and this permission notice appear in all copies.
+>
+> THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+> REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+> AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+> INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+> LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+> OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+> PERFORMANCE OF THIS SOFTWARE.
