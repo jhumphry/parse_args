@@ -44,7 +44,7 @@ begin
                  Usage => "Specify a comma-separated integer array argument");
    AP.Append_Positional(Make_String_Option("INFILE"), "INFILE");
    AP.Allow_Tail_Arguments("TAIL-ARGUMENTS");
-   AP.Set_Prologue("A simple demonstration of the Parse_Args library.");
+   AP.Set_Prologue("A demonstration of the basic features of the Parse_Args library.");
 
    AP.Parse_Command_Line;
 

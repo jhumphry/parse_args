@@ -37,6 +37,36 @@ specified arguments can be retrieved, which is useful in the common
 case that a command can be given a unlimited number of files to operate
 over.
 
+### Example usage
+
+The following demonstrates the basic usage of the Parse_Args package.
+
+    procedure Trivial_Example is
+       AP : Argument_Parser;
+    begin
+       AP.Add_Option(Make_Boolean_Option(False), "help", 'h',
+                     Usage => "Display this help text");
+       AP.Add_Option(Make_Boolean_Option(False), "foo", 'f',
+                     Usage => "The foo option");
+       AP.Set_Prologue("A demonstration of the Parse_Args library.");
+
+       AP.Parse_Command_Line;
+
+       if AP.Parse_Success then
+          if AP.Boolean_Value("help") then
+             AP.Usage;
+          else
+             Put("Option foo is: ");
+             Put((if AP.Boolean_Value("foo") then "true" else "false"));
+             New_Line;
+          end if;
+       else
+          Put_Line("Error while parsing command-line arguments: ");
+          Put_Line(AP.Parse_Message);
+       end if;
+
+    end Trivial_Example;
+
 ### `Option` types
 
 The actual options/arguments themselves are in the form of objects
