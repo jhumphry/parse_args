@@ -25,6 +25,9 @@ use type Ada.Containers.Count_Type;
 
 separate (Parse_Args)
 procedure Usage(A : in Argument_Parser) is
+
+   First_Positional : Boolean := True;
+
 begin
    Put("Usage: ");
    Put(A.Command_Name);
@@ -34,6 +37,10 @@ begin
 
    for I of A.Option_Help_Details loop
       if I.Positional then
+         if First_Positional then
+            Put(" [--] ");
+            First_Positional := False;
+         end if;
          Put(" [" & To_String(I.Name) & "]");
       end if;
    end loop;
@@ -59,7 +66,7 @@ begin
 
          if I.Long_Option /= Null_Unbounded_String then
             Set_Col(7);
-            Put("--" & To_String(I.Long_Option));
+            Put("--" & To_String(I.Long_Option) & " ");
          end if;
 
          Set_Col(20);
