@@ -26,16 +26,8 @@ generic
 package Parse_Args.Generic_Options is
 
    type Element_Option is new Option with private;
-   procedure Set_Option
-     (O : in out Element_Option;
-      A : in out Argument_Parser'Class);
-   procedure Set_Option_Argument
-     (O   : in out Element_Option;
-      Arg : in     String;
-      A   : in out Argument_Parser'Class);
    function Image (O : in Element_Option) return String;
    function Value (O : in Element_Option) return Element;
-
    function Value(A : in Argument_Parser; Name : in String) return Element;
    function Make_Option(Default : in Element := Fallback_Default)
                         return Option_Ptr;
@@ -46,6 +38,13 @@ private
       Value   : Element := Fallback_Default;
       Default : Element := Fallback_Default;
    end record;
+   procedure Set_Option
+     (O : in out Element_Option;
+      A : in out Argument_Parser'Class);
+   procedure Set_Option_Argument
+     (O   : in out Element_Option;
+      Arg : in     String;
+      A   : in out Argument_Parser'Class);
    function Image (O : in Element_Option) return String is (Image (O.Value));
    function Value (O : in Element_Option) return Element is (O.Value);
 

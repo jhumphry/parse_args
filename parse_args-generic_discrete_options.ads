@@ -32,13 +32,6 @@ package Parse_Args.Generic_Discrete_Options is
                                                    Valid => Valid);
 
    subtype Element_Option is Inner.Element_Option;
-   procedure Set_Option
-     (O : in out Element_Option;
-      A : in out Argument_Parser'Class) renames Inner.Set_Option;
-   procedure Set_Option_Argument
-     (O   : in out Element_Option;
-      Arg : in     String;
-      A   : in out Argument_Parser'Class) renames Inner.Set_Option_Argument;
    function Image (O : in Element_Option) return String renames Inner.Image;
    function Value (O : in Element_Option) return Element renames Inner.Value;
 

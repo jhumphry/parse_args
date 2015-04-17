@@ -28,16 +28,8 @@ package Parse_Args.Integer_Array_Options is
                                                       );
 
    subtype Element_Array_Option is Inner.Element_Array_Option;
-   procedure Set_Option
-     (O : in out Element_Array_Option;
-      A : in out Argument_Parser'Class) renames Inner.Set_Option;
-   procedure Set_Option_Argument
-     (O   : in out Element_Array_Option;
-      Arg : in     String;
-      A   : in out Argument_Parser'Class) renames Inner.Set_Option_Argument;
    function Image (O : in Element_Array_Option) return String renames Inner.Image;
    function Value (O : in Element_Array_Option) return Integer_Array_Access renames Inner.Value;
-
    function Value(A : in Argument_Parser; Name : in String) return Integer_Array_Access renames Inner.Value;
    function Make_Option return Option_Ptr renames Inner.Make_Option;
 

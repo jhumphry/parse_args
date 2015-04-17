@@ -27,16 +27,8 @@ generic
 package Parse_Args.Generic_Indefinite_Options is
 
    type Element_Option is new Option with private;
-   procedure Set_Option
-     (O : in out Element_Option;
-      A : in out Argument_Parser'Class);
-   procedure Set_Option_Argument
-     (O   : in out Element_Option;
-      Arg : in     String;
-      A   : in out Argument_Parser'Class);
    function Image (O : in Element_Option) return String;
    function Value (O : in Element_Option) return Element_Access;
-
    function Value(A : in Argument_Parser; Name : in String) return Element_Access;
    function Make_Option return Option_Ptr;
 
@@ -47,7 +39,13 @@ private
    end record;
 
    overriding procedure Finalize(Object : in out Element_Option);
-
+   procedure Set_Option
+     (O : in out Element_Option;
+      A : in out Argument_Parser'Class);
+   procedure Set_Option_Argument
+     (O   : in out Element_Option;
+      Arg : in     String;
+      A   : in out Argument_Parser'Class);
    function Image (O : in Element_Option) return String is (Image(O.Value));
    function Value (O : in Element_Option) return Element_Access is (O.Value);
 
