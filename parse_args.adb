@@ -472,7 +472,9 @@ package body Parse_Args is
       -- still need to be manually released.
 
       for O of Object.Arguments loop
-         Free_Option(General_Option_Ptr(O));
+         if O /= null then
+            Free_Option(General_Option_Ptr(O));
+         end if;
       end loop;
 
       for O of Object.Option_Help_Details loop

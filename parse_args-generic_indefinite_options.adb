@@ -104,7 +104,9 @@ package body Parse_Args.Generic_Indefinite_Options is
 
    procedure Finalize(Object : in out Element_Option) is
    begin
-      Free_Element(Object.Value);
+      if Object.Value /= null then
+         Free_Element(Object.Value);
+      end if;
    end Finalize;
 
 
