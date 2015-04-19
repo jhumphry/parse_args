@@ -26,7 +26,7 @@ generic
    type Element is (<>);
    type Element_Array is array (Integer range <>) of Element;
    type Element_Array_Access is access Element_Array;
-   with procedure Valid (Arg : in Element; Result : in out Boolean) is null;
+   with procedure Valid (Arg : in Element_Array_Access; Result : in out Boolean) is null;
 package Parse_Args.Generic_Discrete_Array_Options is
 
    procedure Free_Element_Array is new Ada.Unchecked_Deallocation(Object => Element_Array,
@@ -49,7 +49,8 @@ package Parse_Args.Generic_Discrete_Array_Options is
                                                               Element_Access => Element_Array_Access,
                                                               Value => Split_CSV_Element_Array,
                                                               Image => Element_Array_Image,
-                                                              Free_Element => Free_Element_Array
+                                                              Free_Element => Free_Element_Array,
+                                                              Valid => Valid
                                                              );
 
    subtype Element_Array_Option is Inner.Element_Option;
