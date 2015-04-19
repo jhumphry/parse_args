@@ -21,5 +21,5 @@ generic
    type Element is private;
    type Element_Array is array(Integer range <>) of Element;
    type Element_Array_Access is access Element_Array;
-   with function Value (S : String) return Element'Base;
+   with function Value (S : String) return Element;
 function Parse_Args.Split_CSV (S : String) return Element_Array_Access;

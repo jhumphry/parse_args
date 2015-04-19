@@ -20,8 +20,8 @@ pragma Profile(No_Implementation_Extensions);
 generic
    type Element is private;
    Fallback_Default : Element;
-   with function Value (S : String) return Element'Base;
-   with function Image (Arg : Element'Base) return String;
+   with function Value (S : String) return Element;
+   with function Image (Arg : Element) return String;
    with procedure Valid (Arg : in Element; Result : in out Boolean) is null;
 package Parse_Args.Generic_Options is
 
