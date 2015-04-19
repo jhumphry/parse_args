@@ -86,16 +86,6 @@ package body Parse_Args.Generic_Options is
 
    function Make_Option
      (Default : in Element := Fallback_Default)
-      return Element_Option
-   is
-     (Element_Option'(Limited_Controlled with
-                          Set => False,
-                          Value => Default,
-                          Default => Default
-                     ));
-
-   function Make_Option
-     (Default : in Element := Fallback_Default)
       return Option_Ptr
    is
      (new Element_Option'(Limited_Controlled with

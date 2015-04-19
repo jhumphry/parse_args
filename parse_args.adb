@@ -419,7 +419,7 @@ package body Parse_Args is
 
    function Make_String_Option(Default : in String := "") return Option_Ptr
    is
-      Default_US : Unbounded_String := To_Unbounded_String(Default);
+      Default_US : constant Unbounded_String := To_Unbounded_String(Default);
    begin
       return new Concrete_String_Option'(Limited_Controlled with
                                            Set => False,
