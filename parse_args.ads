@@ -74,6 +74,8 @@ package Parse_Args is
      Default_Iterator => Iterate,
      Iterator_Element => Option;
 
+   function Ready(A : in Argument_Parser) return Boolean;
+
    -- Initialising the Argument_Parser
 
    procedure Add_Option(A : in out Argument_Parser;
@@ -83,39 +85,51 @@ package Parse_Args is
                         Long_Option : in String := "";
                         Usage : in String := "";
                         Prepend_Usage : in Boolean := False
-                       );
+                       )
+     with Pre'Class => A.Ready;
 
    procedure Append_Positional(A : in out Argument_Parser;
                                O : in Option_Ptr;
                                Name : in String
-                              );
+                              )
+     with Pre'Class => A.Ready;
 
    procedure Allow_Tail_Arguments(A : in out Argument_Parser;
                                   Usage : in String := "ARGUMENTS";
-                                  Allow : in Boolean := True);
+                                  Allow : in Boolean := True)
+     with Pre'Class => A.Ready;
 
    procedure Set_Prologue(A: in out Argument_Parser;
-                          Prologue : in String);
+                          Prologue : in String)
+     with Pre'Class => A.Ready;
 
    -- Processing the command line
 
-   procedure Parse_Command_Line(A : in out Argument_Parser);
+   procedure Parse_Command_Line(A : in out Argument_Parser)
+     with Pre'Class => A.Ready,
+       Post'Class => not A.Ready;
 
    -- Retrieving the results
 
-   function Parse_Success(A : in Argument_Parser) return Boolean;
-   function Parse_Message(A : in Argument_Parser) return String;
+   function Parse_Success(A : in Argument_Parser) return Boolean
+     with Pre'Class => not A.Ready;
+   function Parse_Message(A : in Argument_Parser) return String
+     with Pre'Class => not A.Ready;
 
-   function Command_Name(A : in Argument_Parser) return String is
-     (Ada.Command_Line.Command_Name);
+   function Command_Name(A : in Argument_Parser) return String
+     with Pre'Class => not A.Ready;
 
-   function Boolean_Value(A : in Argument_Parser; Name : in String) return Boolean;
-   function Integer_Value(A : in Argument_Parser; Name : in String) return Integer;
-   function String_Value(A : in Argument_Parser; Name : in String) return String;
+   function Boolean_Value(A : in Argument_Parser; Name : in String)
+                          return Boolean with Pre'Class => not A.Ready;
+   function Integer_Value(A : in Argument_Parser; Name : in String)
+                          return Integer with Pre'Class => not A.Ready;
+   function String_Value(A : in Argument_Parser; Name : in String)
+                         return String with Pre'Class => not A.Ready;
 
    package String_Doubly_Linked_Lists is
      new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => String);
-   function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List;
+   function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List
+     with Pre'Class => not A.Ready;
 
    -- Convenience procedure for printing usage text
 
@@ -159,18 +173,6 @@ private
                                  A : in out Argument_Parser'Class) is null;
 
    function Set(O : in Option) return Boolean is (O.Set);
-
-
-   -- These functions shadow the standard library, but if they are used in a
-   -- dispatching way they can be over-ridden in derived types, which is useful
-   -- if you want to test the Argument_Parser code but with data fed in from
-   -- a test framework rather than the operating system.
-   -- Note that Command_Name is exposed directly above.
-
-   function Argument_Count(A : in Argument_Parser) return Natural is
-     (Ada.Command_Line.Argument_Count);
-   function Argument(A : in Argument_Parser; Number : in Positive) return String is
-     (Ada.Command_Line.Argument(Number));
 
    -- The following instantiations of the standard containers are used as the
    -- basic data structures for storing information on options
@@ -234,6 +236,24 @@ private
       end record;
 
    overriding procedure Finalize(Object : in out Argument_Parser);
+
+   -- These functions shadow the standard library, but if they are used in a
+   -- dispatching way they can be over-ridden in derived types, which is useful
+   -- if you want to test the Argument_Parser code but with data fed in from
+   -- a test framework rather than the operating system.
+   -- Note that Command_Name is exposed directly above.
+
+   function Argument_Count(A : in Argument_Parser) return Natural is
+     (Ada.Command_Line.Argument_Count);
+   function Argument(A : in Argument_Parser; Number : in Positive) return String is
+     (Ada.Command_Line.Argument(Number));
+
+   function Ready(A : in Argument_Parser) return Boolean is
+     (A.State = Init);
+
+   function Command_Name(A : in Argument_Parser) return String is
+     (Ada.Command_Line.Command_Name);
+
 
    type Option_Constant_Ref(Element : not null access Option'Class) is null record;
 
