@@ -34,6 +34,149 @@ package body Parse_Args is
 
    use Ada.Finalization;
 
+   -------------------------
+   -- Make_Boolean_Option --
+   -------------------------
+
+   function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr is
+     (new Concrete_Boolean_Option'(Limited_Controlled with
+                                   Set => False,
+                                   Value => Default,
+                                   Default => Default
+                                  ));
+
+   --------------------------
+   -- Make_Repeated_Option --
+   --------------------------
+
+   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr is
+     (new Repeated_Option'(Limited_Controlled with
+                           Set => False,
+                           Value => Default,
+                           Default => Default,
+                           Min => 0,
+                           Max => Integer'Last
+                          ));
+
+   -------------------------
+   -- Make_Integer_Option --
+   -------------------------
+
+   function Make_Integer_Option(Default : in Integer := 0;
+                                Min : in Integer := Integer'First;
+                                Max : in Integer := Integer'Last
+                               ) return Option_Ptr is
+     (new Concrete_Integer_Option'(Limited_Controlled with
+                                   Set => False,
+                                   Value => Default,
+                                   Default => Default,
+                                   Min => Min,
+                                   Max => Max
+                                  ));
+
+   ------------------------
+   -- Make_String_Option --
+   ------------------------
+
+   function Make_String_Option(Default : in String := "") return Option_Ptr
+   is
+      Default_US : constant Unbounded_String := To_Unbounded_String(Default);
+   begin
+      return new Concrete_String_Option'(Limited_Controlled with
+                                           Set => False,
+                                         Value => Default_US,
+                                         Default => Default_US
+                                        );
+   end Make_String_Option;
+
+   ----------------
+   -- Add_Option --
+   ----------------
+
+   procedure Add_Option(A : in out Argument_Parser;
+                        O : in Option_Ptr;
+                        Name : in String;
+                        Short_Option : in Character := '-';
+                        Long_Option : in String := "";
+                        Usage : in String := "";
+                        Prepend_Usage : in Boolean := False
+                       ) is
+      Pos : Option_Help_Lists.Cursor;
+      Final_Long_Option : Unbounded_String;
+   begin
+      A.Arguments.Insert(Name, O);
+
+      if Prepend_Usage then
+         Pos := A.Option_Help_Details.First;
+      else
+         Pos := Option_Help_Lists.No_Element;
+      end if;
+
+      if Short_Option /= '-' then
+         A.Short_Options.Insert(Short_Option, O);
+      end if;
+
+      if Long_Option = "" then
+         A.Long_Options.Insert(Name, O);
+         Final_Long_Option := To_Unbounded_String(Name);
+      elsif Long_Option /= "-" then
+         A.Long_Options.Insert(Long_Option, O);
+         Final_Long_Option := To_Unbounded_String(Long_Option);
+      else
+         Final_Long_Option := Null_Unbounded_String;
+      end if;
+
+      A.Option_Help_Details.Insert(Before => Pos,
+                                   New_Item => Option_Help'(Name => To_Unbounded_String(Name),
+                                                            Positional => False,
+                                                            Long_Option => Final_Long_Option,
+                                                            Short_Option => Short_Option,
+                                                            Usage => To_Unbounded_String(Usage))
+                                  );
+
+   end Add_Option;
+
+   -----------------------
+   -- Append_Positional --
+   -----------------------
+
+   procedure Append_Positional(A : in out Argument_Parser;
+                               O : in Option_Ptr;
+                               Name : in String
+                              ) is
+   begin
+      A.Arguments.Insert(Name, O);
+      A.Positional.Append(O);
+      A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
+                                                Positional => True,
+                                                Long_Option => Null_Unbounded_String,
+                                                Short_Option => '-',
+                                                Usage => Null_Unbounded_String));
+   end Append_Positional;
+
+   --------------------------
+   -- Allow_Tail_Arguments --
+   --------------------------
+
+   procedure Allow_Tail_Arguments(A : in out Argument_Parser;
+                                  Usage : in String := "ARGUMENTS";
+                                  Allow : in Boolean := True) is
+   begin
+      A.Tail_Usage := To_Unbounded_String(Usage);
+      A.Allow_Tail := Allow;
+   end Allow_Tail_Arguments;
+
+   ------------------
+   -- Set_Prologue --
+   ------------------
+
+   procedure Set_Prologue(A: in out Argument_Parser;
+                          Prologue : in String) is
+   begin
+      A.Prologue := To_Unbounded_String(Prologue);
+   end Set_Prologue;
+
+
    ------------------------
    -- Parse_Command_Line --
    ------------------------
@@ -214,12 +357,6 @@ package body Parse_Args is
       end case;
    end Parse_Message;
 
-   -----------
-   -- Usage --
-   -----------
-
-   procedure Usage(A : in Argument_Parser) is separate;
-
    -------------------
    -- Boolean_Value --
    -------------------
@@ -264,7 +401,13 @@ package body Parse_Args is
    ----------
 
    function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List is
-      (A.Tail);
+     (A.Tail);
+
+   -----------
+   -- Usage --
+   -----------
+
+   procedure Usage(A : in Argument_Parser) is separate;
 
    -----------------
    -- Has_Element --
@@ -316,148 +459,6 @@ package body Parse_Args is
    begin
       return Option_Constant_Ref'(Element => Option_Maps.Element(Option_Maps.Cursor(Position)));
    end Constant_Reference;
-
-   ----------------
-   -- Add_Option --
-   ----------------
-
-   procedure Add_Option(A : in out Argument_Parser;
-                        O : in Option_Ptr;
-                        Name : in String;
-                        Short_Option : in Character := '-';
-                        Long_Option : in String := "";
-                        Usage : in String := "";
-                        Prepend_Usage : in Boolean := False
-                       ) is
-      Pos : Option_Help_Lists.Cursor;
-      Final_Long_Option : Unbounded_String;
-   begin
-      A.Arguments.Insert(Name, O);
-
-      if Prepend_Usage then
-         Pos := A.Option_Help_Details.First;
-      else
-         Pos := Option_Help_Lists.No_Element;
-      end if;
-
-      if Short_Option /= '-' then
-         A.Short_Options.Insert(Short_Option, O);
-      end if;
-
-      if Long_Option = "" then
-         A.Long_Options.Insert(Name, O);
-         Final_Long_Option := To_Unbounded_String(Name);
-      elsif Long_Option /= "-" then
-         A.Long_Options.Insert(Long_Option, O);
-         Final_Long_Option := To_Unbounded_String(Long_Option);
-      else
-         Final_Long_Option := Null_Unbounded_String;
-      end if;
-
-      A.Option_Help_Details.Insert(Before => Pos,
-                                   New_Item => Option_Help'(Name => To_Unbounded_String(Name),
-                                                            Positional => False,
-                                                            Long_Option => Final_Long_Option,
-                                                            Short_Option => Short_Option,
-                                                            Usage => To_Unbounded_String(Usage))
-                                  );
-
-   end Add_Option;
-
-   -----------------------
-   -- Append_Positional --
-   -----------------------
-
-   procedure Append_Positional(A : in out Argument_Parser;
-                               O : in Option_Ptr;
-                               Name : in String
-                              ) is
-   begin
-      A.Arguments.Insert(Name, O);
-      A.Positional.Append(O);
-      A.Option_Help_Details.Append(Option_Help'(Name => To_Unbounded_String(Name),
-                                                Positional => True,
-                                                Long_Option => Null_Unbounded_String,
-                                                Short_Option => '-',
-                                                Usage => Null_Unbounded_String));
-   end Append_Positional;
-
-   -------------------------
-   -- Make_Boolean_Option --
-   -------------------------
-
-   function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr is
-     (new Concrete_Boolean_Option'(Limited_Controlled with
-                                   Set => False,
-                                   Value => Default,
-                                   Default => Default
-                                  ));
-
-   --------------------------
-   -- Make_Repeated_Option --
-   --------------------------
-
-   function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr is
-     (new Repeated_Option'(Limited_Controlled with
-                           Set => False,
-                           Value => Default,
-                           Default => Default,
-                           Min => 0,
-                           Max => Integer'Last
-                          ));
-
-   -------------------------
-   -- Make_Integer_Option --
-   -------------------------
-
-   function Make_Integer_Option(Default : in Integer := 0;
-                                Min : in Integer := Integer'First;
-                                Max : in Integer := Integer'Last
-                               ) return Option_Ptr is
-     (new Concrete_Integer_Option'(Limited_Controlled with
-                                   Set => False,
-                                   Value => Default,
-                                   Default => Default,
-                                   Min => Min,
-                                   Max => Max
-                                  ));
-
-   ------------------------
-   -- Make_String_Option --
-   ------------------------
-
-   function Make_String_Option(Default : in String := "") return Option_Ptr
-   is
-      Default_US : constant Unbounded_String := To_Unbounded_String(Default);
-   begin
-      return new Concrete_String_Option'(Limited_Controlled with
-                                           Set => False,
-                                         Value => Default_US,
-                                         Default => Default_US
-                                        );
-   end Make_String_Option;
-
-   --------------------------
-   -- Allow_Tail_Arguments --
-   --------------------------
-
-   procedure Allow_Tail_Arguments(A : in out Argument_Parser;
-                                  Usage : in String := "ARGUMENTS";
-                                  Allow : in Boolean := True) is
-   begin
-      A.Tail_Usage := To_Unbounded_String(Usage);
-      A.Allow_Tail := Allow;
-   end Allow_Tail_Arguments;
-
-   ------------------
-   -- Set_Prologue --
-   ------------------
-
-   procedure Set_Prologue(A: in out Argument_Parser;
-                          Prologue : in String) is
-   begin
-      A.Prologue := To_Unbounded_String(Prologue);
-   end Set_Prologue;
 
    --------------
    -- Finalize --
