@@ -15,7 +15,15 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
-pragma Profile(No_Implementation_Extensions);
+pragma Restrictions(No_Implementation_Aspect_Specifications,
+                    No_Implementation_Attributes,
+                    No_Implementation_Identifiers,
+                    No_Implementation_Units);
+
+-- pragma Profile(No_Implementation_Extensions) is not used in this compilation
+-- unit because it sets the restriction No_Implementation_Pragmas. A GNAT
+-- specific pragma Unreferenced is being used to suppress unneccesary warnings
+-- where parameters are intentionally not being used.
 
 package body Parse_Args.Concrete is
 
@@ -41,7 +49,7 @@ package body Parse_Args.Concrete is
 
    procedure Set_Option(O : in out Concrete_Boolean_Option;
                         A : in out Argument_Parser'Class) is
-
+      pragma Unreferenced(A);
    begin
       O.Set := True;
       O.Value := not O.Default;
@@ -53,7 +61,7 @@ package body Parse_Args.Concrete is
 
    procedure Set_Option(O : in out Repeated_Option;
                         A : in out Argument_Parser'Class) is
-
+      pragma Unreferenced(A);
    begin
       O.Set := True;
       O.Value := O.Value + 1;
@@ -88,6 +96,7 @@ package body Parse_Args.Concrete is
    procedure Set_Option_Argument(O : in out Concrete_String_Option;
                                  Arg : in String;
                                  A : in out Argument_Parser'Class) is
+      pragma Unreferenced(A);
    begin
       O.Set := True;
       O.Value := To_Unbounded_String(Arg);

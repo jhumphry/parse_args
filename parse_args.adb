@@ -15,7 +15,15 @@
 -- OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 -- PERFORMANCE OF THIS SOFTWARE.
 
-pragma Profile(No_Implementation_Extensions);
+pragma Restrictions(No_Implementation_Aspect_Specifications,
+                    No_Implementation_Attributes,
+                    No_Implementation_Identifiers,
+                    No_Implementation_Units);
+
+-- pragma Profile(No_Implementation_Extensions) is not used in this compilation
+-- unit because it sets the restriction No_Implementation_Pragmas. A GNAT
+-- specific pragma Unreferenced is being used to suppress unneccesary warnings
+-- where parameters are intentionally not being used.
 
 with Parse_Args.Concrete;
 use Parse_Args.Concrete;
@@ -304,6 +312,7 @@ package body Parse_Args is
       Position : in Cursor)
       return Option_Constant_Ref
    is
+      pragma Unreferenced(C);
    begin
       return Option_Constant_Ref'(Element => Option_Maps.Element(Option_Maps.Cursor(Position)));
    end Constant_Reference;
