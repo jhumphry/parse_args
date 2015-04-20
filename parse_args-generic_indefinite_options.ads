@@ -27,9 +27,11 @@ generic
 package Parse_Args.Generic_Indefinite_Options is
 
    type Element_Option is new Option with private;
-   function Image (O : in Element_Option) return String;
-   function Value (O : in Element_Option) return Element_Access;
+   overriding function Image (O : in Element_Option) return String;
+   not overriding function Value (O : in Element_Option) return Element_Access;
+
    function Value(A : in Argument_Parser; Name : in String) return Element_Access;
+
    function Make_Option return Option_Ptr;
 
 private
@@ -46,7 +48,9 @@ private
      (O   : in out Element_Option;
       Arg : in     String;
       A   : in out Argument_Parser'Class);
-   function Image (O : in Element_Option) return String is (Image(O.Value));
-   function Value (O : in Element_Option) return Element_Access is (O.Value);
+   overriding function Image (O : in Element_Option) return String is
+     (Image(O.Value));
+   not overriding function Value (O : in Element_Option) return Element_Access is
+     (O.Value);
 
 end Parse_Args.Generic_Indefinite_Options;
