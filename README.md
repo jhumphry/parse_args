@@ -335,8 +335,9 @@ indefinite values which are still required to new storage allocations.
        type Element is (<>);
        type Element_Array is array (Integer range <>) of Element;
        type Element_Array_Access is access Element_Array;
-       with procedure Valid (Arg : in Element; Result : in out Boolean)
-          is null;
+       with procedure Valid (Arg : in Element_Array_Access;
+                             Result : in out Boolean
+                            ) is null;
     package Parse_Args.Generic_Discrete_Array_Options
 
 This package is a wrapper aroung `Generic_Discrete_Array_Options` that
