@@ -18,17 +18,18 @@ library project Parse_Args is
          Additional_Ada_Flags := ("-fPIC");
          for Library_Standalone use "standard";
          for Library_Version use "libparse_args.so." & Version;
-         for Library_Interface use ("Parse_Args",
-                                    "Parse_Args.Generic_Options",
-                                    "Parse_Args.Generic_Discrete_Options",
-                                    "Parse_Args.Generic_Indefinite_Options",
-                                    "Parse_Args.Split_CSV",
-                                    "Parse_Args.Generic_Discrete_Array_Options",
-                                    "Parse_Args.Integer_Array_Options"
-                                    );
       when "static" =>
-         for Library_Interface use ();
+         null;
    end case;
+
+   for Library_Interface use ("Parse_Args",
+                              "Parse_Args.Generic_Options",
+                              "Parse_Args.Generic_Discrete_Options",
+                              "Parse_Args.Generic_Indefinite_Options",
+                              "Parse_Args.Split_CSV",
+                              "Parse_Args.Generic_Discrete_Array_Options",
+                              "Parse_Args.Integer_Array_Options"
+                              );
 
    for Source_Dirs use ("./");
    for Excluded_Source_Dirs use ("examples");
