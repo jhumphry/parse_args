@@ -147,7 +147,7 @@ package Parse_Args is
    function Iterate (Container : in Argument_Parser)
       return Argument_Parser_Iterators.Forward_Iterator'Class;
 
-   type Option_Constant_Ref(Element : not null access Option'Class) is private
+   type Option_Constant_Ref(Element : not null access constant Option'Class) is private
      with Implicit_Dereference => Element;
 
    function Constant_Reference(C : aliased in Argument_Parser;
@@ -255,7 +255,7 @@ private
      (Ada.Command_Line.Command_Name);
 
 
-   type Option_Constant_Ref(Element : not null access Option'Class) is null record;
+   type Option_Constant_Ref(Element : not null access constant Option'Class) is null record;
 
    type Cursor is new Option_Maps.Cursor;
 
