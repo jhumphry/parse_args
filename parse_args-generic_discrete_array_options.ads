@@ -37,13 +37,7 @@ package Parse_Args.Generic_Discrete_Array_Options is
                                                      Element_Array_Access => Element_Array_Access,
                                                      Value => Element'Value);
 
-   function Element_Array_Image(Arg : Element_Array_Access) return String is
-     (
-      if Arg /= null then
-         "<Array of length: " & Integer'Image(Arg.all'Length) & ">"
-      else
-         "<Empty array>"
-     );
+   function Element_Array_Image(Arg : Element_Array_Access) return String;
 
    package Inner is new Parse_Args.Generic_Indefinite_Options(Element => Element_Array,
                                                               Element_Access => Element_Array_Access,
