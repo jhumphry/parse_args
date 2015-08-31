@@ -34,4 +34,3 @@ package Parse_Args.Integer_Array_Options is
    function Make_Option return Option_Ptr renames Inner.Make_Option;
 
 end Parse_Args.Integer_Array_Options;
-

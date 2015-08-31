@@ -102,5 +102,4 @@ package body Parse_Args.Generic_Indefinite_Options is
       end if;
    end Finalize;
 
-
 end Parse_Args.Generic_Indefinite_Options;

@@ -40,5 +40,3 @@ package Parse_Args.Generic_Discrete_Options is
                         return Option_Ptr renames Inner.Make_Option;
 
 end Parse_Args.Generic_Discrete_Options;
-
-

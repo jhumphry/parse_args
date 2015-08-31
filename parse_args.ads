@@ -254,7 +254,6 @@ private
    function Command_Name(A : in Argument_Parser) return String is
      (Ada.Command_Line.Command_Name);
 
-
    type Option_Constant_Ref(Element : not null access constant Option'Class) is null record;
 
    type Cursor is new Option_Maps.Cursor;

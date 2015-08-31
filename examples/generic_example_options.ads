@@ -22,7 +22,7 @@ use Parse_Args;
 
 with Parse_Args.Generic_Discrete_Options;
 with Parse_Args.Generic_Options;
-with Parse_args.Generic_Indefinite_Options;
+with Parse_Args.Generic_Indefinite_Options;
 with Parse_Args.Split_CSV;
 
 package Generic_Example_Options is

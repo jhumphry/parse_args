@@ -38,7 +38,6 @@ private package Parse_Args.Concrete is
    function Image(O : in  Concrete_Boolean_Option) return String is (Boolean'Image(O.Value));
    function Value(O : in Concrete_Boolean_Option) return Boolean is (O.Value);
 
-
    type Concrete_Integer_Option is new Option_With_Argument and Integer_Option with record
       Value : Integer := 0;
       Default : Integer := 0;
@@ -51,10 +50,8 @@ private package Parse_Args.Concrete is
    function Image(O : in  Concrete_Integer_Option) return String is (Integer'Image(O.Value));
    function Value(O : in Concrete_Integer_Option) return Integer is (O.Value);
 
-
    type Repeated_Option is new Concrete_Integer_Option with null record;
    procedure Set_Option(O : in out Repeated_Option; A : in out Argument_Parser'Class);
-
 
    type Concrete_String_Option is new Option_With_Argument and String_Option with record
       Value : Unbounded_String := Null_Unbounded_String;

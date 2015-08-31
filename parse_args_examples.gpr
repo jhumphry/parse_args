@@ -28,22 +28,24 @@ project Parse_Args_Examples is
    package Compiler is
       case Mode is
          when "debug"|"memdebug" =>
-               for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf", "-gnatVa", "-gnatwa", "-gnato", "-g");
+            for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf",
+                                              "-gnato", "-gnatVa", "-gnatwa",
+                                              "-g", "-fstack-check",
+                                              "-gnatyaAbCdfhiknprux");
          when "optimize" =>
-               for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn");
+            for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn");
       end case;
    end Compiler;
 
    package Linker is
       case Mode is
          when "debug" =>
-               for Default_Switches ("ada") use ();
+            for Default_Switches ("ada") use ();
          when "memdebug" =>
-               for Default_Switches ("ada") use ("-lgmem");
+            for Default_Switches ("ada") use ("-lgmem");
          when "optimize" =>
-               for Default_Switches ("ada") use ();
+            for Default_Switches ("ada") use ();
       end case;
    end Linker;
 
 end Parse_Args_Examples;
-

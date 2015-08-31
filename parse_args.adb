@@ -176,7 +176,6 @@ package body Parse_Args is
       A.Prologue := To_Unbounded_String(Prologue);
    end Set_Prologue;
 
-
    ------------------------
    -- Parse_Command_Line --
    ------------------------

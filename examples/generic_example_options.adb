@@ -19,7 +19,7 @@ package body Generic_Example_Options is
 
    procedure Is_Even(Arg : in Integer; Result : in out Boolean) is
    begin
-      Result := (if (Arg mod 2) = 0 then true else false);
+      Result := (if (Arg mod 2) = 0 then True else False);
    end Is_Even;
 
 end Generic_Example_Options;

@@ -72,7 +72,6 @@ begin
          end loop;
       end;
 
-
    else
       Put_Line("Error while parsing command-line arguments: " & AP.Parse_Message);
    end if;
