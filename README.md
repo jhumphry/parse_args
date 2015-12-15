@@ -23,19 +23,22 @@ The core of the package is the `Argument_Parser` type. An object of
 this type is created and populated with objects from the `Option` type
 hierarchy. The processing of the command line arguments is then
 triggered. If successful, the `Argument_Parser` will then contain the
-actual arguments passed (or default values where appropriate). These
-values can be iterated over, can be retrieved by treating the
-`Argument_Parser` object as a map from option names to string values,
-or can be retrieved as the correct types by specific functions.
+values for the arguments specified by the user (or the specified
+default values where appropriate). The values can be iterated over, can
+be retrieved by treating the `Argument_Parser` object as a map from
+option names to string values, or can be retrieved as the correct types
+by type-specific functions.
 
 The built-in option types cover Boolean options, whose presence or
 absence on the command line sets the value, repeated options where a
 counter is incremented each type the argument is specified, and
-arguments of Integer and String types. Options can either be of the
-named type or can be positional. The remaining unprocessed 'tail' of
-specified arguments can be retrieved, which is useful in the common
-case that a command can be given a unlimited number of files to operate
-over.
+arguments of Integer and String types. Various generics are provided so
+arguments of any type can be parsed, provided there is an unambiguous
+conversion from a string. Options can either be named type or can be
+identified by their position on the command line. The 'tail' of
+unprocessed arguments can also be retrieved in order, which may, for
+example, represent a number of input files that the user wishes to be
+processed.
 
 ### Example usage
 
@@ -73,25 +76,26 @@ end Trivial_Example;
 
 The actual options/arguments themselves are in the form of objects
 derived from the base `Option` type. These objects are not intended to
-be instantiated directly. Instead factory functions will be provided to
-allocate new objects and return `Option_Ptr` values which are passed to
-the `Add_Option` or `Append_Positional` procedures of
-`Argument_Parser`.
+be instantiated directly. Instead factory functions are provided which
+allocate new objects and return `Option_Ptr` values. These `Option_Ptr`
+values are then passed to the `Add_Option` or `Append_Positional`
+procedures of `Argument_Parser` as appropriate.
 
-#### Operations of option types
+#### Operations of `Option` types
 
 ```ada
 function Set(O : in Option) return Boolean;
 ```
 
-This function indicates whether a particular option was set. If not, the
-value returned may be a default value.
+This function indicates whether a particular option was set by the user
+on the command line. If a value was not set, the default value may be
+returned.
 
 ```ada
 function Image(O : in Option) return String is abstract;
 ```
 
-This returns a string giving the value of the option. This is the
+This returns a string giving the value of the option. This is a
 default representation of the converted value, so is not necessarily
 the same as the representation accepted from the user.
 
@@ -104,12 +108,13 @@ function Make_Repeated_Option(Default : in Natural := 0)
    return Option_Ptr;
 ```
 
-These factories return options that are intended to be specified
-without additional values. The Boolean type can only be specified once.
-If not specified the default value will be returned, and if specified
-the opposite will be returned. The Repeated type can be specified more
-than once and the return value is an integer giving the number of times
-it appeared on the command line.
+These factories return options that are intended to be specified on the
+command line without additional values. The Boolean type can only be
+specified by the user once. If not specified the default value will be
+returned, and if specified the negation of the default value will be
+returned. The Repeated type can be specified more than once and the
+return value is an integer giving the number of times it appeared on
+the command line.
 
 ```ada
 function Make_Integer_Option(Default : in Integer := 0;
@@ -122,10 +127,11 @@ function Make_Positive_Option(Default : in Positive := 1)
    return Option_Ptr;
 ```
 
-The Integer option type takes a default value to be returned if nothing
-is specified by the user, together with minimum and maximum valid
-values. The Natural and Positive factories are simply a convenience
-with the limits pre-set.
+The Integer option type takes a default value which is returned if the
+option is not specified by the user. It also allows minimum and maximum
+valid values to be set. The Natural and Positive factories are a
+convenience which have the limits appropriately set for the relevant
+sub-type.
 
 ```ada
 function Make_String_Option(Default : in String := "")
@@ -139,9 +145,9 @@ This factory returns an option that holds a string.
 The `Argument_Parser` type is responsible for holding references to and
 organising the collections of `Option` objects. During the processing
 of the command line it manages a state machine and sends each argument
-to the appropriate `Option` object. After processing it is equipped
-with indexing and iteration interfaces to allow the results to be
-retrieved.
+and any associated value to the appropriate `Option` object. After
+processing is complete it is equipped with indexing and iteration
+interfaces to allow the results to be retrieved.
 
 #### Initialising the object
 
@@ -165,12 +171,12 @@ short or long form. If `Long_Option` is left as an empty string then
 the `Name` will be re-used as the `Long_Option`.
 
 `Usage` is a string which gives a short explanation of what this option
-is for. The order of adding options to the `Argument_Parser` does not
-affect the order in which the user can invoke the options on the
-command line, but it does affect the order in which the usage text is
-produced. If you want to add an option with the `Usage` text appearing
-before any previously added options, the flag `Prepend_Usage` should be
-set.
+is for. The order in which options are added to the `Argument_Parser`
+does not affect the order in which the user can invoke the options on
+the command line, but it does affect the order in which the usage text
+is produced. If you want to add an option with the `Usage` text
+appearing before any previously added options, the flag `Prepend_Usage`
+should be set.
 
 ```ada
 procedure Append_Positional(A : in out Argument_Parser;
@@ -179,12 +185,14 @@ procedure Append_Positional(A : in out Argument_Parser;
                            );
 ```
 
-Adding positional arguments is simpler. The `Name` parameter is used to
-retrieve the result, and to label the positional argument when
-producing the usage text. The `Argument_Parser` package supports the
-use of `--` on the command line to mean that all further arguments are
-considered against the positional arguments only. This is useful if the
-user wishes to specify an argument that happens to start with a `-`.
+Adding positional arguments is simpler, but only makes sense for
+options that take a value (so not `Boolean_Option`, for example). The
+`Name` parameter is used to retrieve the result, and to label the
+positional argument when producing the usage text. The
+`Argument_Parser` package supports the use of `--` on the command line
+to mean that all further arguments are considered against the
+positional arguments only. This is useful if the user wishes to specify
+an argument that happens to start with a `-`.
 
 ```ada
 procedure Allow_Tail_Arguments(A : in out Argument_Parser;
