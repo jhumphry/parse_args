@@ -1,7 +1,7 @@
 -- parse_args.adb
 -- A simple command line option parser
 
--- Copyright (c) 2014 - 2015, James Humphry
+-- Copyright (c) 2014 - 2016, James Humphry
 --
 -- Permission to use, copy, modify, and/or distribute this software for any
 -- purpose with or without fee is hereby granted, provided that the above
@@ -217,7 +217,7 @@ package body Parse_Args is
       -- Last_Option holds a pointer to the option seen in the previous loop
       -- iteration so we know where to direct any arguments.
 
-      for I in 1..Ada.Command_Line.Argument_Count loop
+      for I in 1..Argument_Parser'Class(A).Argument_Count loop
          declare
             Arg : constant String := Argument_Parser'Class(A).Argument(I);
          begin
