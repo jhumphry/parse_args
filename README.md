@@ -416,7 +416,7 @@ useful so has also be exposed as a generic unit.
 `Generic_Discrete_Array_Options` for the case of arrays of the built-in
 `Integer` type.
 
-## Examples
+## Examples and unit tests
 
 Two example programs are provided. `simple_example.adb` shows the usage
 of the inbuilt option types.
@@ -425,6 +425,9 @@ of the inbuilt option types.
 types. The option types are defined in `generic_example_options.ads`,
 showing both discrete, floating-point and indefinite (array) option
 types.
+
+Some unit tests built using the AUnit framework are compiled into
+`parse_args_tests`.
 
 ## Copyright license
 
