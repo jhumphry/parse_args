@@ -164,6 +164,9 @@ package Parse_Args is
 
    function Constant_Reference(C : aliased in Argument_Parser;
                                Name : in String) return Option_Constant_Ref;
+   function Get(C : aliased in Argument_Parser;
+                Name : in String) return Option_Constant_Ref
+     renames Constant_Reference;
 
 private
 
