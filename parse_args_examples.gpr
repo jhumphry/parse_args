@@ -4,20 +4,22 @@
 -- Copyright (c) 2015 - 2016, James Humphry - see LICENSE for terms
 
 with "parse_args";
+with "aunit";
 
 project Parse_Args_Examples is
 
    type Mode_Type is ("debug", "memdebug", "coverage", "optimize");
    Mode : Mode_Type := external ("mode", "debug");
 
-   for Source_Dirs use ("examples/");
+   for Source_Dirs use ("examples/", "tests/");
 
    for Object_Dir use "build/";
    for Exec_Dir use "exec/";
    for Main use (
                  "trivial_example.adb",
                  "simple_example.adb",
-                 "generic_example.adb"
+                 "generic_example.adb",
+                 "parse_args_tests.adb"
                 );
 
    package Ide is

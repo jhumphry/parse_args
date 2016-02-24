@@ -74,6 +74,18 @@ package Parse_Args is
      Default_Iterator => Iterate,
      Iterator_Element => Option;
 
+   -- These functions shadow the standard library, but if they are used in a
+   -- dispatching way they can be over-ridden in derived types, which is useful
+   -- for tests
+
+   function Command_Name(A : in Argument_Parser) return String
+     with Pre'Class => not A.Ready;
+   function Argument_Count(A : in Argument_Parser) return Natural
+     with Pre'Class => not A.Ready;
+   function Argument(A : in Argument_Parser; Number : in Positive)
+                     return String
+     with Pre'Class => not A.Ready;
+
    function Ready(A : in Argument_Parser) return Boolean;
 
    -- Initialising the Argument_Parser
@@ -114,9 +126,6 @@ package Parse_Args is
    function Parse_Success(A : in Argument_Parser) return Boolean
      with Pre'Class => not A.Ready;
    function Parse_Message(A : in Argument_Parser) return String
-     with Pre'Class => not A.Ready;
-
-   function Command_Name(A : in Argument_Parser) return String
      with Pre'Class => not A.Ready;
 
    function Boolean_Value(A : in Argument_Parser; Name : in String)
@@ -236,12 +245,6 @@ private
       end record;
 
    overriding procedure Finalize(Object : in out Argument_Parser);
-
-   -- These functions shadow the standard library, but if they are used in a
-   -- dispatching way they can be over-ridden in derived types, which is useful
-   -- if you want to test the Argument_Parser code but with data fed in from
-   -- a test framework rather than the operating system.
-   -- Note that Command_Name is exposed directly above.
 
    function Argument_Count(A : in Argument_Parser) return Natural is
      (Ada.Command_Line.Argument_Count);
