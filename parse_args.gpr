@@ -31,7 +31,7 @@ library project Parse_Args is
                               "Parse_Args.Integer_Array_Options"
                              );
 
-   for Source_Dirs use ("./");
+   for Source_Dirs use ("src/");
    for Excluded_Source_Dirs use ("examples");
    case LT is
       when "dynamic" =>

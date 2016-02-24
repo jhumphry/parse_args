@@ -17,7 +17,7 @@ library project Parse_Args_Dynamic is
                               "Parse_Args.Integer_Array_Options"
                               );
 
-   for Source_Dirs use ("./");
+   for Source_Dirs use ("src/");
    for Excluded_Source_Dirs use ("examples");
    for Library_Dir use "lib/";
 
