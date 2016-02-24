@@ -1,12 +1,16 @@
+-- parse_args_examples.gpr
+-- Examples for parse_args.gpr
 
-with "parse_args_static";
+-- Copyright (c) 2015 - 2016, James Humphry - see LICENSE for terms
+
+with "parse_args";
 
 project Parse_Args_Examples is
 
-   type Mode_Type is ("debug", "memdebug", "optimize");
+   type Mode_Type is ("debug", "memdebug", "coverage", "optimize");
    Mode : Mode_Type := external ("mode", "debug");
 
-   for Source_Dirs use ("./examples/");
+   for Source_Dirs use ("examples/");
 
    for Object_Dir use "build/";
    for Exec_Dir use "exec/";
@@ -25,24 +29,32 @@ project Parse_Args_Examples is
       for Default_Switches ("ada") use ("-j2");
    end Builder;
 
+   Debug_Compiler_Switches := ("-gnat2012", "-gnata", "-gnatf",
+                               "-gnato", "-gnatVa", "-gnatwa",
+                               "-g", "-fstack-check",
+                               "-gnatyaAbCdfhiknprux");
+
    package Compiler is
       case Mode is
          when "debug"|"memdebug" =>
-            for Default_Switches ("ada") use ("-gnat2012", "-gnata", "-gnatf",
-                                              "-gnato", "-gnatVa", "-gnatwa",
-                                              "-g", "-fstack-check",
-                                              "-gnatyaAbCdfhiknprux");
+            for Default_Switches ("ada") use Debug_Compiler_Switches;
+         when "coverage" =>
+            for Default_Switches ("ada") use Debug_Compiler_Switches &
+            ("-ftest-coverage", "-fprofile-arcs");
          when "optimize" =>
-            for Default_Switches ("ada") use ("-gnat2012", "-O3", "-gnatn");
+            for Default_Switches ("ada") use ("-gnat2012", "-O2",
+                                              "-gnatn", "-gnatp");
       end case;
    end Compiler;
 
    package Linker is
       case Mode is
          when "debug" =>
-            for Default_Switches ("ada") use ();
+            for Default_Switches ("ada") use ("-g");
          when "memdebug" =>
-            for Default_Switches ("ada") use ("-lgmem");
+            for Default_Switches ("ada") use ("-g", "-lgmem");
+         when "coverage" =>
+            for Default_Switches ("ada") use ("-g", "-fprofile-generate");
          when "optimize" =>
             for Default_Switches ("ada") use ();
       end case;

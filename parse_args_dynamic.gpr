@@ -1,4 +1,11 @@
--- This project file does not recompile the sources
+-- parse_args_dynamic.gpr
+-- an Ada 2012 package that provides simple command-line argument parsing
+
+-- This project file assumes a dynamic library has already been compiled and
+-- does not recompile the sources
+
+-- Copyright (c) 2015 - 2016, James Humphry - see LICENSE for terms
+
 
 library project Parse_Args_Dynamic is
 
@@ -15,7 +22,7 @@ library project Parse_Args_Dynamic is
                               "Parse_Args.Split_CSV",
                               "Parse_Args.Generic_Discrete_Array_Options",
                               "Parse_Args.Integer_Array_Options"
-                              );
+                             );
 
    for Source_Dirs use ("src/");
    for Excluded_Source_Dirs use ("examples");
@@ -24,4 +31,3 @@ library project Parse_Args_Dynamic is
    for Externally_Built use "true";
 
 end Parse_Args_Dynamic;
-
