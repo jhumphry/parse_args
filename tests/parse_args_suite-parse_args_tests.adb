@@ -146,10 +146,8 @@ package body Parse_Args_Suite.Parse_Args_Tests is
             when Constraint_Error =>
                Catch_No_Such_Argument := True;
          end;
-
          Assert(Catch_No_Such_Argument,
                 "Returned a value for a non-existent option");
-
       end;
 
    end Check_Basics;
@@ -232,7 +230,27 @@ package body Parse_Args_Suite.Parse_Args_Tests is
          AP.Append_Arguments((+"--nonesuch", +"--foo"));
          AP.Parse_Command_Line;
          Assert(not AP.Parse_Success,
-                "Parse successful despite passing non-existent option");
+                "Parse successful despite passing non-existent long option");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-n", +"--foo"));
+         AP.Parse_Command_Line;
+         Assert(not AP.Parse_Success,
+                "Parse successful despite passing non-existent short option");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Argument("-fnz");
+         AP.Parse_Command_Line;
+         Assert(not AP.Parse_Success,
+                "Parse successful despite passing non-existent grouped short option");
       end;
 
       declare
