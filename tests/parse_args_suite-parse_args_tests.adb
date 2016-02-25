@@ -35,10 +35,12 @@ package body Parse_Args_Suite.Parse_Args_Tests is
    procedure Register_Tests (T: in out Parse_Args_Test) is
       use AUnit.Test_Cases.Registration;
    begin
-       Register_Routine (T, Check_Basics'Access,
+      Register_Routine (T, Check_Basics'Access,
                         "Check basic functionality");
       Register_Routine (T, Check_Boolean_Usage'Access,
                         "Check Boolean option functionality");
+      Register_Routine (T, Check_Repeated_Usage'Access,
+                        "Check Repeated option functionality");
    end Register_Tests;
 
    ----------
@@ -164,22 +166,18 @@ package body Parse_Args_Suite.Parse_Args_Tests is
          return Result : Testable_Argument_Parser do
             Result.Add_Option(O => Make_Boolean_Option(False),
                               Name => "foo",
-                              Short_Option => 'f',
-                              Usage => "Foo option");
+                              Short_Option => 'f');
             Result.Add_Option(O => Make_Boolean_Option(True),
                               Name => "bar",
-                              Short_Option => 'b',
-                              Usage => "Bar option");
+                              Short_Option => 'b');
             Result.Add_Option(O => Make_Boolean_Option(False),
                               Name => "baz",
                               Short_Option => 'z',
-                              Long_Option => "-",
-                              Usage => "Baz option");
+                              Long_Option => "-");
             Result.Add_Option(O => Make_Boolean_Option(False),
                               Name => "bork",
                               Short_Option => '-',
-                              Long_Option => "borkable",
-                              Usage => "Borkable option");
+                              Long_Option => "borkable");
             Result.Set_Command_Name("parse_args_tests");
          end return;
       end Setup_AP;
