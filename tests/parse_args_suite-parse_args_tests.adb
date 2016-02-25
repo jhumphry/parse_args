@@ -283,4 +283,99 @@ package body Parse_Args_Suite.Parse_Args_Tests is
 
    end Check_Boolean_Usage;
 
+   --------------------------
+   -- Check_Repeated_Usage --
+   --------------------------
+
+   procedure Check_Repeated_Usage (T : in out Test_Cases.Test_Case'Class) is
+      pragma Unreferenced(T);
+
+      function Setup_AP return Testable_Argument_Parser is
+      begin
+         return Result : Testable_Argument_Parser do
+            Result.Add_Option(O => Make_Repeated_Option,
+                              Name => "foo",
+                              Short_Option => 'f');
+            Result.Add_Option(O => Make_Repeated_Option,
+                              Name => "bar",
+                              Short_Option => 'b');
+            Result.Add_Option(O => Make_Repeated_Option(5),
+                              Name => "baz",
+                              Short_Option => 'z');
+            Result.Add_Option(O => Make_Boolean_Option,
+                              Name => "snafu",
+                              Short_Option => 's');
+            Result.Set_Command_Name("parse_args_tests");
+         end return;
+      end Setup_AP;
+   begin
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"--foo",
+                             +"--foo",
+                             +"-b", +"-b"));
+
+         AP.Parse_Command_Line;
+         Assert(AP.Parse_Success, "Argument_Parser did not parse successfully: " &
+                  AP.Parse_Message);
+
+         Assert(AP.Integer_Value("foo") = 2,
+                "Repeated options (using long option type) not working");
+         Assert(AP.Integer_Value("bar") = 2,
+                "Repeated options (using short option type) not working");
+         Assert(AP.Integer_Value("baz") = 5,
+                "Repeated options defaults not working");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-fbfb",
+                             +"--baz",
+                             +"-z", +"-z"));
+
+         AP.Parse_Command_Line;
+         Assert(AP.Parse_Success, "Argument_Parser did not parse successfully: " &
+                  AP.Parse_Message);
+
+         Assert(AP.Integer_Value("foo") = 2,
+                "Repeated options (using short option group) not working");
+         Assert(AP.Integer_Value("bar") = 2,
+                "Repeated options (using short option group) not working");
+         Assert(AP.Integer_Value("baz") = 8,
+                "Repeated optionsw with a default and mixed long and short " &
+                  "options are not working");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-fz",
+                             +"--snafu",
+                             +"--baz",
+                             +"-z",
+                             +"-z",
+                             +"--foo"));
+
+         AP.Parse_Command_Line;
+         Assert(AP.Parse_Success, "Argument_Parser did not parse successfully: " &
+                  AP.Parse_Message);
+
+         Assert(AP.Integer_Value("foo") = 2,
+                "Repeated options (using short option group) not working");
+         Assert(AP.Integer_Value("bar") = 0,
+                  "Repeated options (with no default set and not invoked) not " &
+                  "returning 0 when retrieved");
+         Assert(AP.Integer_Value("baz") = 9,
+                "Repeated optionsw with a default and mixed long and short " &
+                  "options are not working");
+      end;
+
+   end Check_Repeated_Usage;
+
 end Parse_Args_Suite.Parse_Args_Tests;
