@@ -41,6 +41,8 @@ package body Parse_Args_Suite.Parse_Args_Tests is
                         "Check Boolean option functionality");
       Register_Routine (T, Check_Repeated_Usage'Access,
                         "Check Repeated option functionality");
+      Register_Routine (T, Check_Integer_Usage'Access,
+                        "Check Integer option functionality");
    end Register_Tests;
 
    ----------
@@ -377,5 +379,171 @@ package body Parse_Args_Suite.Parse_Args_Tests is
       end;
 
    end Check_Repeated_Usage;
+
+   -------------------------
+   -- Check_Integer_Usage --
+   -------------------------
+
+   procedure Check_Integer_Usage (T : in out Test_Cases.Test_Case'Class) is
+      pragma Unreferenced(T);
+
+      function Setup_AP return Testable_Argument_Parser is
+      begin
+         return Result : Testable_Argument_Parser do
+            Result.Add_Option(O => Make_Integer_Option,
+                              Name => "foo",
+                              Short_Option => 'f');
+            Result.Add_Option(O => Make_Natural_Option,
+                              Name => "bar",
+                              Short_Option => 'b');
+            Result.Add_Option(O => Make_Positive_Option,
+                              Name => "baz",
+                              Short_Option => 'z');
+            Result.Add_Option(O => Make_Integer_Option(Default => 15,
+                                                       Min     => 10,
+                                                       Max     => 20),
+                              Name => "coz",
+                              Short_Option => 'c');
+            Result.Add_Option(O => Make_Boolean_Option,
+                              Name => "door",
+                              Short_Option => 'd');
+            Result.Set_Command_Name("parse_args_tests");
+         end return;
+      end Setup_AP;
+
+      Catch_No_Such_Argument : Boolean := False;
+
+   begin
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"--foo", +"5",
+                             +"-c", +"12"));
+
+         AP.Parse_Command_Line;
+         Assert(AP.Parse_Success, "Argument_Parser did not parse successfully: " &
+                  AP.Parse_Message);
+
+         Assert(AP.Integer_Value("foo") = 5,
+                "Integer option (long form) not working");
+         Assert(AP.Integer_Value("bar") = 0,
+                "Natural Option default not correct");
+         Assert(AP.Integer_Value("baz") = 1,
+                "Positive option default not correct");
+         Assert(AP.Integer_Value("coz") = 12,
+                "Integer option (short form) with custom range not working");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-f", +"-7"));
+         AP.Append_Arguments((+"-z", +"16#FF#"));
+
+         AP.Parse_Command_Line;
+         Assert(AP.Parse_Success, "Argument_Parser did not parse successfully: " &
+                  AP.Parse_Message);
+
+         Assert(AP.Integer_Value("foo") = -7,
+                "Positive option did not accept negative input");
+         Assert(AP.Integer_Value("baz") = 255,
+                "Positive option did not accept hex input");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-df", +"8"));
+
+         AP.Parse_Command_Line;
+         Assert(AP.Parse_Success, "Argument_Parser did not parse successfully: " &
+                  AP.Parse_Message);
+
+         Assert(AP.Integer_Value("foo") = 8,
+                "Integer option (short group) not working");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-z", +"0"));
+
+         AP.Parse_Command_Line;
+         Assert(not AP.Parse_Success,
+               "Argument parser did not reject 0 as input for Positive option");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-c", +"8"));
+
+         AP.Parse_Command_Line;
+         Assert(not AP.Parse_Success,
+                "Argument parser did not reject out-of range value for " &
+                  "customised Integer option");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-f", +"--bar", +"8"));
+
+         AP.Parse_Command_Line;
+         Assert(not AP.Parse_Success,
+                "Argument parser did not reject missing option value for an" &
+               "Integer option");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-fb", +"8"));
+
+         AP.Parse_Command_Line;
+         Assert(not AP.Parse_Success,
+                "Argument parser did not reject missing option value for an" &
+               "Integer option as part of a short option group");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"-f", +"8",
+                            +"--foo", +"9"));
+
+         AP.Parse_Command_Line;
+         Assert(not AP.Parse_Success,
+                "Argument parser did not reject specifying an Integer option" &
+               "twice.");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Parse_Command_Line;
+         declare
+            Dummy : Integer := AP.Integer_Value("nosuch");
+         begin
+            null;
+         end;
+      exception
+         when Constraint_Error =>
+            Catch_No_Such_Argument := True;
+      end;
+
+      Assert(Catch_No_Such_Argument,
+             "Returned a value for a non-existent integer option");
+
+   end Check_Integer_Usage;
 
 end Parse_Args_Suite.Parse_Args_Tests;

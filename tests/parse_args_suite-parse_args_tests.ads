@@ -34,4 +34,6 @@ package Parse_Args_Suite.Parse_Args_Tests is
 
    procedure Check_Repeated_Usage (T : in out Test_Cases.Test_Case'Class);
 
+   procedure Check_Integer_Usage (T : in out Test_Cases.Test_Case'Class);
+
 end Parse_Args_Suite.Parse_Args_Tests;
