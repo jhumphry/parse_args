@@ -43,6 +43,8 @@ package body Parse_Args_Suite.Parse_Args_Tests is
                         "Check Repeated option functionality");
       Register_Routine (T, Check_Integer_Usage'Access,
                         "Check Integer option functionality");
+      Register_Routine (T, Check_String_Usage'Access,
+                        "Check String option functionality");
    end Register_Tests;
 
    ----------
@@ -545,5 +547,70 @@ package body Parse_Args_Suite.Parse_Args_Tests is
              "Returned a value for a non-existent integer option");
 
    end Check_Integer_Usage;
+
+   ------------------------
+   -- Check_String_Usage --
+   ------------------------
+
+   procedure Check_String_Usage (T : in out Test_Cases.Test_Case'Class) is
+      pragma Unreferenced(T);
+
+      function Setup_AP return Testable_Argument_Parser is
+      begin
+         return Result : Testable_Argument_Parser do
+            Result.Add_Option(O => Make_String_Option,
+                              Name => "foo",
+                              Short_Option => 'f');
+            Result.Add_Option(O => Make_String_Option(Default => "Hello"),
+                              Name => "bar",
+                              Short_Option => 'b');
+            Result.Add_Option(O => Make_String_Option,
+                              Name => "baz",
+                              Short_Option => 'z');
+            Result.Set_Command_Name("parse_args_tests");
+         end return;
+      end Setup_AP;
+
+      Catch_No_Such_Argument : Boolean := False;
+
+   begin
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Clear_Arguments;
+         AP.Append_Arguments((+"--foo", +"5",
+                             +"-z", +"Goodbye"));
+
+         AP.Parse_Command_Line;
+         Assert(AP.Parse_Success, "Argument_Parser did not parse successfully: " &
+                  AP.Parse_Message);
+
+         Assert(AP.String_Value("foo") = "5",
+                "String option (long form) not working");
+         Assert(AP.String_Value("bar") = "Hello",
+                "String Option default not correct");
+         Assert(AP.String_Value("baz") = "Goodbye",
+                "String option (short form) not working");
+      end;
+
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+      begin
+         AP.Parse_Command_Line;
+         declare
+            Dummy :String := AP.String_Value("nosuch");
+         begin
+            null;
+         end;
+      exception
+         when Constraint_Error =>
+            Catch_No_Such_Argument := True;
+      end;
+
+      Assert(Catch_No_Such_Argument,
+             "Returned a value for a non-existent string option");
+
+   end Check_String_Usage;
 
 end Parse_Args_Suite.Parse_Args_Tests;
