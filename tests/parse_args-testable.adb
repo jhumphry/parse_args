@@ -44,13 +44,6 @@ package body Parse_Args.Testable is
       return String is
      (To_String(A.Input_Arguments(Number)));
 
-   -----------
-   -- Ready --
-   -----------
-
-   overriding function Ready(A : in Testable_Argument_Parser) return Boolean is
-     (A.State = Init);
-
    ---------------------
    -- Clear_Arguments --
    ---------------------
