@@ -118,27 +118,30 @@ package Parse_Args is
    -- Processing the command line
 
    procedure Parse_Command_Line(A : in out Argument_Parser)
-     with Pre'Class => A.Ready,
-       Post'Class => not A.Ready;
+     with Pre'Class => Ready(Argument_Parser'Class(A)),
+       Post'Class => not Ready(Argument_Parser'Class(A));
 
    -- Retrieving the results
 
    function Parse_Success(A : in Argument_Parser) return Boolean
-     with Pre'Class => not A.Ready;
+     with Pre'Class => not Ready(Argument_Parser'Class(A));
    function Parse_Message(A : in Argument_Parser) return String
-     with Pre'Class => not A.Ready;
+     with Pre'Class => not Ready(Argument_Parser'Class(A));
 
    function Boolean_Value(A : in Argument_Parser; Name : in String)
-                          return Boolean with Pre'Class => not A.Ready;
+                          return Boolean
+     with Pre'Class => not Ready(Argument_Parser'Class(A));
    function Integer_Value(A : in Argument_Parser; Name : in String)
-                          return Integer with Pre'Class => not A.Ready;
+                          return Integer
+     with Pre'Class => not Ready(Argument_Parser'Class(A));
    function String_Value(A : in Argument_Parser; Name : in String)
-                         return String with Pre'Class => not A.Ready;
+                         return String
+     with Pre'Class => not Ready(Argument_Parser'Class(A));
 
    package String_Doubly_Linked_Lists is
      new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => String);
    function Tail(A: in Argument_Parser) return String_Doubly_Linked_Lists.List
-     with Pre'Class => not A.Ready;
+     with Pre'Class => not Ready(Argument_Parser'Class(A));
 
    -- Convenience procedure for printing usage text
 
