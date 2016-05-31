@@ -55,7 +55,10 @@ package Parse_Args.Testable is
                                       return Natural;
    overriding function Argument(A : in Testable_Argument_Parser;
                                 Number : in Positive)
-                     return String;
+                                return String;
+
+   overriding function Ready(A : in Testable_Argument_Parser) return Boolean;
+
    not overriding procedure Clear_Arguments(A : in out Testable_Argument_Parser);
    not overriding procedure Append_Argument(A : in out Testable_Argument_Parser;
                                             S : in String);
