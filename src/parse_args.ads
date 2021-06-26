@@ -1,7 +1,7 @@
 -- parse_args.ads
 -- A simple command line option parser
 
--- Copyright (c) 2014 - 2015, James Humphry
+-- Copyright (c) 2014 - 2021, James Humphry
 --
 -- Permission to use, copy, modify, and/or distribute this software for any
 -- purpose with or without fee is hereby granted, provided that the above
@@ -206,7 +206,6 @@ private
                                                                     Equivalent_Keys => "=");
 
    package Positional_Lists is new Ada.Containers.Doubly_Linked_Lists(Element_Type => Option_Ptr);
-   use type Positional_Lists.List;
    use type Positional_Lists.Cursor;
 
    type Option_Help is
@@ -219,8 +218,6 @@ private
       end record;
 
    package Option_Help_Lists is new Ada.Containers.Indefinite_Doubly_Linked_Lists(Element_Type => Option_Help);
-   use type Option_Help_Lists.List;
-   use type Option_Help_Lists.Cursor;
 
    -- The core of the Argument_Parser is a finite state machine that starts in
    -- the Init state and should end either in the Finish_Success or Finish_Erroneous
