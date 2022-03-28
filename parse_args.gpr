@@ -1,81 +1,88 @@
--- parse_args.gpr
--- an Ada 2012 package that provides simple command-line argument parsing
-
--- Copyright (c) 2015 - 2016, James Humphry - see LICENSE for terms
-
-library project Parse_Args is
-
-   Version := "0.1.0";
-
-   type Mode_Type is ("debug", "memdebug", "coverage", "optimize");
-   Mode : Mode_Type := external ("mode", "debug");
-
-   type Lib_Type is ("static", "dynamic");
-   LT : Lib_Type := external ("lib_type", "static");
-
-   Additional_Ada_Flags := ();
+with "config/parse_args_config.gpr";
+project Parse_Args is
 
    for Library_Name use "parse_args";
-   for Library_Kind use LT;
+   for Library_Version use Project'Library_Name & ".so." & Parse_Args_Config.Crate_Version;
 
-   case LT is
-      when "dynamic" =>
-         Additional_Ada_Flags := ("-fPIC");
-         for Library_Standalone use "standard";
-         for Library_Version use "libparse_args.so." & Version;
-      when "static" =>
-         null;
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Create_Missing_Dirs use "True";
+   for Library_Dir use "lib";
+
+   type Library_Type_Type is ("relocatable", "static", "static-pic");
+   Library_Type : Library_Type_Type :=
+     external ("PARSE_ARGS_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
+   for Library_Kind use Library_Type;
+
+   type Enabled_Kind is ("enabled", "disabled");
+   Compile_Checks : Enabled_Kind := External ("PARSE_ARGS_COMPILE_CHECKS", "disabled");
+   Runtime_Checks : Enabled_Kind := External ("PARSE_ARGS_RUNTIME_CHECKS", "disabled");
+   Style_Checks : Enabled_Kind := External ("PARSE_ARGS_STYLE_CHECKS", "disabled");
+   Contracts_Checks : Enabled_Kind := External ("PARSE_ARGS_CONTRACTS", "disabled");
+
+   type Build_Kind is ("debug", "optimize");
+   Build_Mode : Build_Kind := External ("PARSE_ARGS_BUILD_MODE", "optimize");
+
+   Compile_Checks_Switches := ();
+   case Compile_Checks is
+      when "enabled" =>
+         Compile_Checks_Switches :=
+           ("-gnatwa",  -- All warnings
+            "-gnatVa",  -- All validity checks
+            "-gnatwe"); -- Warnings as errors
+      when others => null;
    end case;
 
-   for Library_Interface use ("Parse_Args",
-                              "Parse_Args.Generic_Options",
-                              "Parse_Args.Generic_Discrete_Options",
-                              "Parse_Args.Generic_Indefinite_Options",
-                              "Parse_Args.Split_CSV",
-                              "Parse_Args.Generic_Discrete_Array_Options",
-                              "Parse_Args.Integer_Array_Options"
-                             );
-
-   for Source_Dirs use ("src/");
-   for Excluded_Source_Dirs use ("examples");
-
-   case LT is
-      when "dynamic" =>
-         for Object_Dir use "build/";
-         for Library_Dir use "lib/";
-      when "static" =>
-         for Object_Dir use "build_static/";
-         for Library_Dir use "lib_static/";
+   Runtime_Checks_Switches := ();
+   case Runtime_Checks is
+      when "enabled" => null;
+      when others =>
+         Runtime_Checks_Switches :=
+           ("-gnatp"); -- Suppress checks
    end case;
 
-   package Ide is
-      for Vcs_Kind use "Git";
-      for Documentation_Dir use "doc/";
-   end Ide;
+   Style_Checks_Switches := ();
+   case Style_Checks is
+      when "enabled" =>
+         Style_Checks_Switches :=
+           ("-gnatyg",   -- GNAT Style checks
+            "-gnaty-d",  -- Disable no DOS line terminators
+            "-gnatyM80", -- Maximum line length
+            "-gnatyO");  -- Overriding subprograms explicitly marked as such
+      when others => null;
+   end case;
 
-   package Builder is
-      for Default_Switches ("ada") use ("-j2");
-   end Builder;
+   Contracts_Switches := ();
+   case Contracts_Checks is
+      when "enabled" =>
+         Contracts_Switches :=
+           ("-gnata"); --  Enable assertions and contracts
+      when others => null;
+   end case;
 
-   Debug_Compiler_Switches := ("-gnat2012", "-gnata", "-gnatf",
-                               "-gnato", "-gnatVa", "-gnatwa",
-                               "-g", "-fstack-check",
-                               "-gnatyaAbCdfhiknprux");
+   Build_Switches := ();
+   case Build_Mode is
+      when "optimize" =>
+         Build_Switches := ("-O3",     -- Optimization
+                            "-gnatn"); -- Enable inlining
+      when "debug" =>
+         Build_Switches := ("-g",   -- Debug info
+                            "-Og"); -- No optimization
+   end case;
 
    package Compiler is
-      case Mode is
-         when "debug" | "memdebug" =>
-            for Default_Switches ("ada") use Debug_Compiler_Switches &
-              Additional_Ada_Flags;
-         when "coverage" =>
-            for Default_Switches ("ada") use Debug_Compiler_Switches &
-              Additional_Ada_Flags &
-            ("-ftest-coverage", "-fprofile-arcs");
-         when "optimize" =>
-            for Default_Switches ("ada") use ("-gnat2012", "-O2",
-                                              "-gnatn", "-gnatp") &
-              Additional_Ada_Flags;
-      end case;
+      for Default_Switches ("Ada") use
+        Compile_Checks_Switches &
+        Build_Switches &
+        Runtime_Checks_Switches &
+        Style_Checks_Switches &
+        Contracts_Switches &
+        ("-gnatw.X", -- Disable warnings for No_Exception_Propagation
+         "-gnatQ");  -- Don't quit. Generate ALI and tree files even if illegalities
    end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
 
 end Parse_Args;
