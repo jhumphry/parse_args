@@ -1,0 +1,22 @@
+name = "parse_args_tests"
+description = "Test suite for parse_args"
+version = "0.9.0"
+website = "https://github.com/jhumphry/parse_args"
+licenses = "ISC"
+tags = ["cli", "command-line"]
+
+authors = ["James Humphry"]
+maintainers = ["James Humphry <alire@binecho.co.uk>"]
+maintainers-logins = ["jhumphry"]
+
+executables = ["parse_args_tests"]
+
+[configuration]
+disabled = true
+
+[[depends-on]]
+aunit = "^22.0.0"
+parse_args = "*"
+
+[[pins]]
+parse_args = { path = "../" }

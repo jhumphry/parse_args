@@ -1,27 +1,20 @@
-with "config/parse_args_config.gpr";
-project Parse_Args is
-
-   for Library_Name use "parse_args";
-   for Library_Version use Project'Library_Name & ".so." & Parse_Args_Config.Crate_Version;
+with "parse_args";
+project Parse_Args_Examples is
 
    for Source_Dirs use ("src");
    for Object_Dir use "obj";
    for Create_Missing_Dirs use "True";
-   for Library_Dir use "lib";
-
-   type Library_Type_Type is ("relocatable", "static", "static-pic");
-   Library_Type : Library_Type_Type :=
-     external ("PARSE_ARGS_LIBRARY_TYPE", external ("LIBRARY_TYPE", "static"));
-   for Library_Kind use Library_Type;
+   for Exec_Dir use "bin";
+   for Main use ("trivial_example.adb", "simple_example.adb", "generic_example.adb");
 
    type Enabled_Kind is ("enabled", "disabled");
-   Compile_Checks : Enabled_Kind := External ("PARSE_ARGS_COMPILE_CHECKS", "disabled");
-   Runtime_Checks : Enabled_Kind := External ("PARSE_ARGS_RUNTIME_CHECKS", "disabled");
-   Style_Checks : Enabled_Kind := External ("PARSE_ARGS_STYLE_CHECKS", "disabled");
-   Contracts_Checks : Enabled_Kind := External ("PARSE_ARGS_CONTRACTS", "disabled");
+   Compile_Checks : Enabled_Kind := External ("PARSE_ARGS_EXAMPLES_COMPILE_CHECKS", "disabled");
+   Runtime_Checks : Enabled_Kind := External ("PARSE_ARGS_EXAMPLES_RUNTIME_CHECKS", "disabled");
+   Style_Checks : Enabled_Kind := External ("PARSE_ARGS_EXAMPLES_STYLE_CHECKS", "disabled");
+   Contracts_Checks : Enabled_Kind := External ("PARSE_ARGS_EXAMPLES_CONTRACTS", "disabled");
 
    type Build_Kind is ("debug", "optimize");
-   Build_Mode : Build_Kind := External ("PARSE_ARGS_BUILD_MODE", "optimize");
+   Build_Mode : Build_Kind := External ("PARSE_ARGS_EXAMPLES_BUILD_MODE", "optimize");
 
    Compile_Checks_Switches := ();
    case Compile_Checks is
@@ -85,4 +78,4 @@ project Parse_Args is
       for Switches ("Ada") use ("-Es"); --  Symbolic traceback
    end Binder;
 
-end Parse_Args;
+end Parse_Args_Examples;

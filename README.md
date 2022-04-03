@@ -429,11 +429,16 @@ types.
 Some unit tests built using the AUnit framework are compiled into
 `parse_args_tests`.
 
+## Acknowledgements
+
+Thanks to Anton Fediushin for packaging help and the Python argparse creators
+for inspiration.
+
 ## Copyright license
 
 The package is provided under the ISC license:
 
-> Copyright (c) 2014 - 2016, James Humphry
+> Copyright (c) 2014 - 2022, James Humphry
 >
 > Permission to use, copy, modify, and/or distribute this software for any
 > purpose with or without fee is hereby granted, provided that the above
