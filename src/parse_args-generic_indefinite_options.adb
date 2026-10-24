@@ -86,9 +86,10 @@ package body Parse_Args.Generic_Indefinite_Options is
 
    function Make_Option return Option_Ptr
    is
-     (new Element_Option'(Limited_Controlled with
+     (new Element_Option'(Controlled with
                           Set => False,
-                          Value =>null
+                          Value => null,
+                          Ref_Count => 1
                          ));
 
    --------------

@@ -37,6 +37,8 @@ package body Parse_Args_Suite.Parse_Args_Tests is
    begin
       Register_Routine (T, Check_Basics'Access,
                         "Check basic functionality");
+      Register_Routine (T, Check_Shared_Option_Does_Not_Double_Free'Access,
+                        "Check shared option pointers are released once");
       Register_Routine (T, Check_Boolean_Usage'Access,
                         "Check Boolean option functionality");
       Register_Routine (T, Check_Repeated_Usage'Access,
@@ -157,6 +159,31 @@ package body Parse_Args_Suite.Parse_Args_Tests is
       end;
 
    end Check_Basics;
+
+   -----------------------------------------------
+   -- Check_Shared_Option_Does_Not_Double_Free --
+   -----------------------------------------------
+
+   procedure Check_Shared_Option_Does_Not_Double_Free
+     (T : in out Test_Cases.Test_Case'Class) is
+      pragma Unreferenced(T);
+
+      function Setup_AP return Testable_Argument_Parser is
+      begin
+         return Result : Testable_Argument_Parser do
+            Result.Add_Option(O => Make_Boolean_Option(False),
+                              Name => "shared");
+            Result.Set_Command_Name("parse_args_tests");
+         end return;
+      end Setup_AP;
+   begin
+      declare
+         AP : Testable_Argument_Parser := Setup_AP;
+         AP_Copy : Testable_Argument_Parser := AP;
+      begin
+         null;
+      end;
+   end Check_Shared_Option_Does_Not_Double_Free;
 
    -------------------------
    -- Check_Boolean_Usage --

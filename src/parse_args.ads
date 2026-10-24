@@ -33,7 +33,7 @@ package Parse_Args is
    -- ** Option
    -- **
 
-   type Option is abstract new Ada.Finalization.Limited_Controlled with private;
+   type Option is abstract new Ada.Finalization.Controlled with private;
    type General_Option_Ptr is access Option'Class;
    subtype Option_Ptr is not null General_Option_Ptr;
 
@@ -69,7 +69,7 @@ package Parse_Args is
    -- ** Argument_Parser
    -- **
 
-   type Argument_Parser is new Ada.Finalization.Limited_Controlled with private
+   type Argument_Parser is new Ada.Finalization.Controlled with private
      with Constant_Indexing => Constant_Reference,
      Default_Iterator => Iterate,
      Iterator_Element => Option;
@@ -175,12 +175,14 @@ private
 
    use Ada.Strings.Unbounded;
 
-   type Option is abstract new Ada.Finalization.Limited_Controlled with
+   type Option is abstract new Ada.Finalization.Controlled with
       record
          Set : Boolean := False;
+         Ref_Count : Natural := 1;
       end record;
 
    overriding procedure Finalize(Object : in out Option) is null;
+   overriding procedure Adjust(Object : in out Option);
 
    procedure Set_Option(O : in out Option; A : in out Argument_Parser'Class) is null;
    procedure Set_Option_Argument(O : in out Option;
@@ -230,7 +232,7 @@ private
                                   Finish_Success,
                                   Finish_Erroneous);
 
-   type Argument_Parser is new Ada.Finalization.Limited_Controlled with
+   type Argument_Parser is new Ada.Finalization.Controlled with
       record
          State : Argument_Parser_State := Init;
          Last_Option : access Option'Class := null;
@@ -248,6 +250,7 @@ private
       end record;
 
    overriding procedure Finalize(Object : in out Argument_Parser);
+   overriding procedure Adjust(Object : in out Argument_Parser);
 
    function Argument_Count(A : in Argument_Parser) return Natural is
      (Ada.Command_Line.Argument_Count);

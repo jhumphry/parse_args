@@ -88,10 +88,11 @@ package body Parse_Args.Generic_Options is
      (Default : in Element := Fallback_Default)
       return Option_Ptr
    is
-     (new Element_Option'(Limited_Controlled with
+     (new Element_Option'(Controlled with
                           Set => False,
                           Value => Default,
-                          Default => Default
+                          Default => Default,
+                          Ref_Count => 1
                          ));
 
 end Parse_Args.Generic_Options;

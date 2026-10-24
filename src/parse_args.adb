@@ -39,10 +39,11 @@ package body Parse_Args is
    -------------------------
 
    function Make_Boolean_Option(Default : in Boolean := False) return Option_Ptr is
-     (new Concrete_Boolean_Option'(Limited_Controlled with
+     (new Concrete_Boolean_Option'(Controlled with
                                    Set => False,
                                    Value => Default,
-                                   Default => Default
+                                   Default => Default,
+                                   Ref_Count => 1
                                   ));
 
    --------------------------
@@ -50,12 +51,13 @@ package body Parse_Args is
    --------------------------
 
    function Make_Repeated_Option(Default : in Natural := 0) return Option_Ptr is
-     (new Repeated_Option'(Limited_Controlled with
+     (new Repeated_Option'(Controlled with
                            Set => False,
                            Value => Default,
                            Default => Default,
                            Min => 0,
-                           Max => Integer'Last
+                           Max => Integer'Last,
+                           Ref_Count => 1
                           ));
 
    -------------------------
@@ -66,12 +68,13 @@ package body Parse_Args is
                                 Min : in Integer := Integer'First;
                                 Max : in Integer := Integer'Last
                                ) return Option_Ptr is
-     (new Concrete_Integer_Option'(Limited_Controlled with
+     (new Concrete_Integer_Option'(Controlled with
                                    Set => False,
                                    Value => Default,
                                    Default => Default,
                                    Min => Min,
-                                   Max => Max
+                                   Max => Max,
+                                   Ref_Count => 1
                                   ));
 
    ------------------------
@@ -82,10 +85,11 @@ package body Parse_Args is
    is
       Default_US : constant Unbounded_String := To_Unbounded_String(Default);
    begin
-      return new Concrete_String_Option'(Limited_Controlled with
+      return new Concrete_String_Option'(Controlled with
                                            Set => False,
                                          Value => Default_US,
-                                         Default => Default_US
+                                         Default => Default_US,
+                                         Ref_Count => 1
                                         );
    end Make_String_Option;
 
@@ -460,11 +464,40 @@ package body Parse_Args is
    end Constant_Reference;
 
    --------------
+   -- Adjust --
+   --------------
+
+   overriding procedure Adjust(Object : in out Option) is
+   begin
+      Object.Ref_Count := Object.Ref_Count + 1;
+   end Adjust;
+
+   --------------
    -- Finalize --
    --------------
 
    procedure Free_Option is new Ada.Unchecked_Deallocation(Object => Option'Class,
                                                            Name => General_Option_Ptr);
+
+   procedure Release_Option(O : in General_Option_Ptr) is
+      Temp : General_Option_Ptr := O;
+   begin
+      if O /= null then
+         O.Ref_Count := O.Ref_Count - 1;
+         if O.Ref_Count = 0 then
+            Free_Option(Temp);
+         end if;
+      end if;
+   end Release_Option;
+
+   overriding procedure Adjust(Object : in out Argument_Parser) is
+   begin
+      for O of Object.Arguments loop
+         if O /= null then
+            O.Ref_Count := O.Ref_Count + 1;
+         end if;
+      end loop;
+   end Adjust;
 
    overriding procedure Finalize(Object : in out Argument_Parser) is
    begin
@@ -481,9 +514,7 @@ package body Parse_Args is
       -- still need to be manually released.
 
       for O of Object.Arguments loop
-         if O /= null then
-            Free_Option(General_Option_Ptr(O));
-         end if;
+         Release_Option(O);
       end loop;
 
       for O of Object.Option_Help_Details loop

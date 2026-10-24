@@ -30,6 +30,9 @@ package Parse_Args_Suite.Parse_Args_Tests is
 
    procedure Check_Basics (T : in out Test_Cases.Test_Case'Class);
 
+   procedure Check_Shared_Option_Does_Not_Double_Free
+     (T : in out Test_Cases.Test_Case'Class);
+
    procedure Check_Boolean_Usage (T : in out Test_Cases.Test_Case'Class);
 
    procedure Check_Repeated_Usage (T : in out Test_Cases.Test_Case'Class);
