@@ -8,3 +8,6 @@ tags = ["cli", "command-line"]
 authors = ["James Humphry"]
 maintainers = ["James Humphry <alire@binecho.co.uk>"]
 maintainers-logins = ["jhumphry"]
+
+[build-switches]
+"*".style_checks = "No"
