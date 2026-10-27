@@ -2,3 +2,7 @@ alire/
 config/
 lib/
 obj/
+/obj/
+/lib/
+/alire/
+/config/
