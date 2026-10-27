@@ -431,14 +431,14 @@ Some unit tests built using the AUnit framework are compiled into
 
 ## Acknowledgements
 
-Thanks to Anton Fediushin for packaging help and the Python argparse creators
-for inspiration.
+Thanks to Anton Fediushin for packaging help, mgrojo for correcting the double-free problem and the
+Python argparse creators for inspiration.
 
 ## Copyright license
 
 The package is provided under the ISC license:
 
-> Copyright (c) 2014 - 2022, James Humphry
+> Copyright (c) 2014 - 2026, James Humphry and contributors
 >
 > Permission to use, copy, modify, and/or distribute this software for any
 > purpose with or without fee is hereby granted, provided that the above
